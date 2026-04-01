@@ -1,16 +1,16 @@
-### Codes for the analysis/figures/tables in Fig 4\.
+### Codes for the analysis/figures/tables in Fig 5\.
 
 ### Table summarizing the codes available in this repository for the respective analysis/figures/tables
 
-| Analysis/Figures/Tables | Section in the manuscript | Simplified Legend |
+| Analysis/Figures/Tables | Section in the manuscript | Name of the Github folder |
 | :---: | :---: | :---: |
-| Fig 4A | Validating a Prognostic Score Based on Wild-type IDH1 and IDH2 Proteins | Survival plots comparing OS of male, H3 wild type patients with high or low IDH1/2 scores in the cDiscovery cohort based on either the TMT or the SRM protein data.  |
-| Fig 4B | Glycosylation associated with the overall survival outcomes | Heatmap illustrating glycopeptides associated with OS from OS-associated pathways.  |
-| Fig 4C | Age related neurodevelopment and tumor progression via CPSA | A heatmap illustrating the overlap between genes showing significant associations with OS across different sex and age groups from CPSA based on global protein or RNA data. |
-| Fig 4D | OS associated pathways in different sex-age strata | Heatmaps illustrating the concordant OS association results from CPSA based on global protein data. The left heatmap represents pathway enrichment results, while the right heatmap illustrates selected protein associations.  |
-| Fig 4E | Construction and validation of protein based OS risk scores | Coefficients with 90% confidence intervals for selected protein markers from penalized multivariate Cox regression (Ridge) in male patients. |
-| Fig 4EF | Construction and validation of protein based OS risk scores | Coefficients with 90% confidence intervals for selected protein markers from penalized multivariate Cox regression (Ridge) in female patients. |
-| Fig 4G | Construction and validation of protein based OS risk scores | Hazard ratios and their 90% CIs from Cox regression model  based on data from the cDiscovery cohort.  |
-| Fig 4H | Construction and validation of protein based OS risk scores | Hazard ratios and their 90% CIs from Cox regression model  based on data from the Validation (H) cohort.  |
-| Fig 4I | Construction and validation of protein based OS risk scores | Model adjusted survival plots comparing OS of tumors with high vs. low PHKG2 protein marker levels in the cDiscovery cohort. |
-| Fig 4J | Construction and validation of protein based OS risk scores | Model adjusted survival plots comparing OS of tumors with high vs. low PHKG2 protein marker levels in the Validation cohort. |
+| Fig 5A | Causal kinase network construction | Topology of a subnetwork illustrating the inferred causal relationship among the 26 kinases with first or second degree causal associations with patient OS in the cDiscovery cohort (ages 0-40).  |
+| Fig 5B | Causal kinase network construction | Topology of the subnetwork for Module I.  |
+| Fig 5C | Tumor cell-specific kinase regulation | Heatmap showing estimated tumor cell specific correlation coefficients among kinase activity scores (KEA3) for the 7 genes in Module 1\.  |
+| Fig 5D | Tumor cell-specific kinase regulation | Heatmap showing pathways up or down regulated  in cancer cells by six Module 1 kinases as inferred by cell type specific analysis. |
+| Fig 5E | Tumor cell-specific kinase regulation | Volcano plot illustrating tumor cell-specific associations between proteins from the oxidative phosphorylation pathway and CDK8 kinase activities.  |
+| Fig 5F | Cell line based investigation of precision treatment strategies targeting causal kinases | Heatmap for inferred z scores measuring interaction strength between pairs of kinases in Module 1 |
+| Fig 5G | Cell line based investigation of precision treatment strategies targeting causal kinases | Diagram illustrating a precision treatment strategy and associated cell line experiments for validation.  |
+| Fig 5H | Cell line based investigation of precision treatment strategies targeting causal kinases | Bar plots showing the concordance between ATM, CDK8, and LCK kinase activity and proliferation scores, based on drug inhibition and CRISPR knockout experiments in tumor-derived cell lines. |
+| Fig 5I | Cell line based investigation of precision treatment strategies targeting causal kinases | Scatter plots showing the negative correlation between tumor kinase activity scores and cell line drug response z-scores from drug inhibition experiments for ATM, CDK8, and LCK. |
+
