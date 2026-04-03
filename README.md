@@ -57,3 +57,5 @@ If access is restricted, please contact:
 ### Step 2: Place the files
 
 After downloading, place the files in the following directory:
+
+data/
