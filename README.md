@@ -27,9 +27,10 @@ Each folder corresponds to a figure in the manuscript and contains the code requ
 To reproduce a specific figure:
 
 1. Download the required data (see **Data access** below)
-2. Place the data files in the `/data` directory
-3. Navigate to the corresponding figure folder
-4. Run the scripts in that folder
+2. Place the data files in the `/data` folder in this repository
+3. Open R or RStudio and set your working directory to the repository folder
+4. Navigate to the corresponding figure folder
+5. Run the scripts in that folder
 
 Each folder contains self-contained analysis code for that figure.
 
@@ -37,17 +38,33 @@ Each folder contains self-contained analysis code for that figure.
 
 ## Data access
 
-The analysis-ready datasets are not stored in this repository due to size constraints
+The analysis-ready datasets are not stored in this repository due to size constraints.
+
+### Data organization (important)
+
+All data files should be placed in the `/data` directory at the root of this repository.
+
+Please do NOT place data files inside individual figure folders.
+
+All scripts are written to load data from the `/data` directory to ensure consistency and reproducibility.
+
+---
 
 ### Step 1: Download the data
 
-Download the required dataset here:  
+Download the following files and place them in the `/data` folder (currently empty):
 
-pediatric_aya_hgg_external_data.rds
+**pediatric_aya_hgg_external_data.rds**  
 https://www.dropbox.com/scl/fi/gcd01rm0rzn4iw1e320va/pediatric_aya_hgg_external_data.rds?rlkey=x8obchfrubbdq2qn80aw1rs6w&st=8tn52mln&dl=0
 
-pediatric_aya_hgg_study_data.rds
+**pediatric_aya_hgg_study_data.rds**  
 https://www.dropbox.com/scl/fi/4tvlari5ou4vdq087ma4m/pediatric_aya_hgg_study_data.rds?rlkey=qi8pejja6zyzw766tze5fnubo&st=23nnh1ss&dl=0
 
 If access is restricted, please contact:  
 **nicole.tignor@gmail.com**
+
+---
+
+## Requirements
+
+This code was developed using R. Required packages are loaded within each script.
