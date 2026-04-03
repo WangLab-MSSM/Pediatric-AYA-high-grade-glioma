@@ -27,7 +27,7 @@ suppressPackageStartupMessages({
   library(colorspace)
 })
 
-study_data <- readRDS("data/pediatric_aya_hgg_study_data.rds")
+study_data <- readRDS("pediatric_aya_hgg_study_data.rds")
 clinical.data <- study_data$clinical
 mut.data <- study_data$mutation$data
 subtype.data <- study_data$subtype

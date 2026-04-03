@@ -26,7 +26,7 @@ suppressPackageStartupMessages({
 })
 
 # ---- I/O ----
-input_file <- "data/pediatric_aya_hgg_study_data.rds"
+input_file <- "pediatric_aya_hgg_study_data.rds"
 output_file <- "Figure1B_barplot_subtype.pdf"
 
 if (!file.exists(input_file)) {
