@@ -42,8 +42,8 @@ mean_collapse_by_gene <- function(data_mat, gene_vec) {
 ## Load data
 ## ------------------------------------------------------------
 
-study.data <- readRDS("data/pediatric_aya_hgg_study_data.rds")
-external.data <- readRDS("data/pediatric_aya_hgg_external_data.rds")
+study.data <- readRDS("pediatric_aya_hgg_study_data.rds")
+external.data <- readRDS("pediatric_aya_hgg_external_data.rds")
 
 clinical.data <- study.data$clinical
 

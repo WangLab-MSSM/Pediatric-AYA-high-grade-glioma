@@ -32,7 +32,7 @@ suppressPackageStartupMessages({
 })
 
 # ---- I/O ----
-input_file <- "data/pediatric_aya_hgg_external_data.rds"
+input_file <- "pediatric_aya_hgg_external_data.rds"
 output_table <- "mutation_survival_association_table.tsv"
 output_plot <- "mut_wide_assoc.pdf"
 

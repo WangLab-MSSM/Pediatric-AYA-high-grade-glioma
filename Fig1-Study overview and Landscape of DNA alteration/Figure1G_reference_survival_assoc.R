@@ -34,8 +34,8 @@ get_green <- function(n) {
   colorRampPalette(RColorBrewer::brewer.pal(9, "Greens")[-(1:2)])(n)
 }
 
-study.data <- readRDS("data/pediatric_aya_hgg_study_data.rds")
-external.data <- readRDS("data/pediatric_aya_hgg_external_data.rds")
+study.data <- readRDS("pediatric_aya_hgg_study_data.rds")
+external.data <- readRDS("pediatric_aya_hgg_external_data.rds")
 
 clinical.data <- study.data$clinical
 ref.data <- external.data$reference_cohort$ref.data
