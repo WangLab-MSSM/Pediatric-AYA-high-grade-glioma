@@ -42,11 +42,11 @@ The analysis-ready datasets are not stored in this repository due to size constr
 
 ### Data organization (important)
 
-All data files should be placed in the `/data` directory at the root of this repository.
+All primary data files are located in the /data directory at the root of this repository.
 
-Please do NOT place data files inside individual figure folders.
+Scripts are written to load input data from this directory to ensure consistent and reproducible results.
 
-All scripts are written to load data from the `/data` directory to ensure consistency and reproducibility.
+Some figure-specific folders may also contain intermediate or derived data files used for generating individual figures. These are provided for convenience and to facilitate reproduction of specific analyses.
 
 ---
 
