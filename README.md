@@ -49,11 +49,12 @@ STEP 1: Download supplementary tables from the journal website
 
 Download Supplementary Tables STable1–STable7 associated with the manuscript.
 
-Place these files in:
+A total of 7 supplementary table files should be downloaded and placed in:
 
-SuppTables/
+data/
 
-Do not rename the files.
+Do not create subdirectories.
+Do not rename files.
 
 -------------------------------------------------------------------------------
 
@@ -69,7 +70,7 @@ STEP 2: Download raw data from PDC
 
 3. Download all associated data tables.
 
-A total of 14 files should be downloaded and placed in:
+A total of 14 data files should be downloaded and placed in:
 
 data/
 
