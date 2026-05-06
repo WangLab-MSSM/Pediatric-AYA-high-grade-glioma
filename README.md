@@ -27,13 +27,13 @@ Figure 2
   Fig2-Age-dependent tumor molecular profiles
 
 Figure 3
-  Fig3-Causal Kinase Analysis
+  Fig3-Cis and Trans Regulation
 
 Figure 4
   Fig4-Prognostic markers/pathways based on AD-TMP
 
 Figure 5
-  Fig5-Cis and Trans Regulation
+  Fig5-Causal Kinase Analysis
 
 Figure 6
   Fig6-Prognostic Subtyping
