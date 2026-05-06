@@ -2,69 +2,104 @@
 
 This repository contains code used to generate all figures and tables for the HOPE pediatric/AYA high-grade glioma study.
 
----
+-------------------------------------------------------------------------------
 
-## Repository structure
+REPRODUCIBILITY OVERVIEW
 
-Each folder corresponds to a figure in the manuscript and contains the code required to reproduce that analysis.
+1. Download supplementary tables from the journal website
+2. Download raw data from PDC
+3. Build the study data object
+4. Consult the README for each figure of interest
 
-### Figure-to-folder mapping
+-------------------------------------------------------------------------------
 
-| Figures   | Name of the GitHub folder |
-|:---------:|:--------------------------|
-| Figure 1  | Fig1-Study overview and Landscape of DNA alteration |
-| Figure 2  | Fig2-Age-dependent tumor molecular profiles |
-| Figure 3  | Fig3-Prognostic markers/pathways based on AD-TMP |
-| Figure 4  | Fig4-Causal Kinase Analysis |
-| Figure 5  | Fig5-Cis and Trans Regulation |
-| Figure 6  | Fig6-Prognostic Subtyping |
-| Figure 7  | Fig7-Immune Landscape |
+REPOSITORY STRUCTURE
 
----
+Each folder corresponds to a figure in the manuscript and contains the code
+required to reproduce that analysis.
 
-## How to use this repository
+Figure-to-folder mapping:
 
-To reproduce a specific figure:
+Figure 1
+  Fig1-Study overview and Landscape of DNA alteration
 
-1. Download the required data (see **Data access** below)
-2. Place the data files in the `/data` folder in this repository
-3. Open R or RStudio and set your working directory to the repository folder
-4. Navigate to the corresponding figure folder
-5. Run the scripts in that folder
+Figure 2
+  Fig2-Age-dependent tumor molecular profiles
 
-Each folder contains self-contained analysis code for that figure.
+Figure 3
+  Fig3-Causal Kinase Analysis
 
----
+Figure 4
+  Fig4-Prognostic markers/pathways based on AD-TMP
 
-## Data access
+Figure 5
+  Fig5-Cis and Trans Regulation
 
-The analysis-ready datasets are not stored in this repository due to size constraints.
+Figure 6
+  Fig6-Prognostic Subtyping
 
-### Data organization (important)
+Figure 7
+  Fig7-Immune Landscape
 
-All primary data files are located in the /data directory at the root of this repository.
+-------------------------------------------------------------------------------
 
-Scripts are written to load input data from this directory to ensure consistent and reproducible results.
+DATA AVAILABILITY AND SETUP
 
-Some figure-specific folders may also contain intermediate or derived data files used for generating individual figures. These are provided for convenience and to facilitate reproduction of specific analyses.
+STEP 1: Download supplementary tables from the journal website
 
----
+Download Supplementary Tables STable1–STable7 associated with the manuscript.
 
-### Step 1: Download the data
+Place these files in:
 
-Download the following files and place them in the `/data` folder (currently empty):
+SuppTables/
 
-**pediatric_aya_hgg_external_data.rds**  
-https://www.dropbox.com/scl/fi/gcd01rm0rzn4iw1e320va/pediatric_aya_hgg_external_data.rds?rlkey=x8obchfrubbdq2qn80aw1rs6w&st=8tn52mln&dl=0
+Do not rename the files.
 
-**pediatric_aya_hgg_study_data.rds**  
-https://www.dropbox.com/scl/fi/4tvlari5ou4vdq087ma4m/pediatric_aya_hgg_study_data.rds?rlkey=qi8pejja6zyzw766tze5fnubo&st=23nnh1ss&dl=0
+-------------------------------------------------------------------------------
 
-If access is restricted, please contact:  
-**nicole.tignor@gmail.com**
+STEP 2: Download raw data from PDC
 
----
+1. Go to:
+   https://proteomic.datacommons.cancer.gov/pdc/
 
-## Requirements
+2. Search for:
+   PDC000497
+   PDC000498
+   PDC000499
 
-This code was developed using R. Required packages are loaded within each script.
+3. Download all associated data tables.
+
+A total of 14 files should be downloaded and placed in:
+
+data/
+
+Do not create subdirectories.
+Do not rename files.
+
+-------------------------------------------------------------------------------
+
+STEP 3: Build study data object
+
+From the repository root, run:
+
+source("code/00_build_study_data_object.R")
+
+-------------------------------------------------------------------------------
+
+STEP 4: Run figure-specific analyses
+
+After generating the study data object:
+
+1. Navigate to the folder corresponding to the figure of interest.
+2. Follow the instructions in that folder’s README.md.
+3. Run the scripts to reproduce the analysis.
+
+Each figure folder contains self-contained code and any additional instructions
+required.
+
+-------------------------------------------------------------------------------
+
+REQUIREMENTS
+
+This code was developed using R.
+Required packages are loaded within each script.
