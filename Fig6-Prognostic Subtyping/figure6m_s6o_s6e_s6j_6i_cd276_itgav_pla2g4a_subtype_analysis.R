@@ -1,61 +1,19 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# File: figure6m_s6o_s6j_6i_itgav_pla2g4a_subtype_analysis.R
+# File: figure6m_s6o_s6j_6i_s6e_subtype_analysis.R
 # ==============================================================================
 #
 # Title:
-#   Figure 6M, Figure S6O, Figure S6J, and Figure 6I —
-#   ITGAV and PLA2G4A multi-omic abundance across sex-stratified
-#   proteomic subtypes
+#   Figure 6M, Figure S6O, Figure S6J, Figure 6I, and Figure S6E —
+#   subtype-based abundance plots
 #
-# Author:
-#   Nicole L. Tignor, PhD
-#   Department of Genetics and Genomics
-#   Icahn School of Medicine at Mount Sinai
-#
-# Description:
-#   This script generates subtype-based visualizations for selected ITGAV and
-#   PLA2G4A molecular features across sex-stratified proteomic subtypes in the
-#   Discovery cohort. All plotted analyses are restricted to samples with
-#   cDisc_age <= 62.
-#
-#   Figure 6M:
-#     - ITGAV sialylated glycopeptide abundance
-#       ITGAV_ANTTQPGIVEGGQVLK-N3H5F1S1G0
-#
-#   Figure S6O:
-#     - ITGAV RNA abundance
-#     - ITGAV protein abundance
-#     - ITGAV unsialylated glycopeptide abundance
-#       ITGAV_ANTTQPGIVEGGQVLK-N3H5F1S0G0
-#     - ITGAV sialylated glycopeptide abundance
-#       ITGAV_ANTTQPGIVEGGQVLK-N3H5F1S1G0
-#
-#   Figure S6J:
-#     - PLA2G4A RNA abundance
-#
-#   Figure 6I:
-#     - PLA2G4A protein abundance
-#     - PLA2G4A S377 phosphosite abundance
-#
-# Clinical metadata mapping:
-#   original hclini.m / HARMONY_age
-#     -> data/STable1.xlsx / ClinicalTable / cDisc_age
-#
-# Input files:
-#   - data/STable1.xlsx
-#   - data/STable6.xlsx
-#   - data/cDisc_rna_coding_10192023.tsv
-#   - data/cDisc_proteome_imputed_data_09152023.tsv
-#   - data/cDisc_phosphosite_imputed_data_ischemia_removed_motif_11032023.tsv
-#   - data/Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv
-#
-# Output files:
-#   - figures/Figure6M_ITGAV_sialylated_glycopeptide.pdf
-#   - figures/FigureS6O_ITGAV_multiomic_subtype_replication.pdf
-#   - figures/FigureS6J_PLA2G4A_RNA_subtype_replication.pdf
-#   - figures/Figure6I_PLA2G4A_protein_phosphosite_subtype.pdf
+# Outputs:
+#   - Figure6M_ITGAV_sialylated_glycopeptide.pdf
+#   - FigureS6O_ITGAV_multiomic_subtype_replication.pdf
+#   - FigureS6J_PLA2G4A_RNA_subtype_replication.pdf
+#   - Figure6I_PLA2G4A_protein_phosphosite_subtype.pdf
+#   - FigureS6E_CD276_protein_subtype_age_0_40.pdf
 #
 # ==============================================================================
 
@@ -83,16 +41,19 @@ protein_file <- "data/cDisc_proteome_imputed_data_09152023.tsv"
 phosphosite_file <- "data/cDisc_phosphosite_imputed_data_ischemia_removed_motif_11032023.tsv"
 glyco_file <- "data/Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv"
 
-output_figure6m_pdf <- "figures/Figure6M_ITGAV_sialylated_glycopeptide.pdf"
-output_figure_s6o_pdf <- "figures/FigureS6O_ITGAV_multiomic_subtype_replication.pdf"
-output_figure_s6j_pdf <- "figures/FigureS6J_PLA2G4A_RNA_subtype_replication.pdf"
-output_figure6i_pdf <- "figures/Figure6I_PLA2G4A_protein_phosphosite_subtype.pdf"
+output_figure6m_pdf <- "Figure6M_ITGAV_sialylated_glycopeptide.pdf"
+output_figure_s6o_pdf <- "FigureS6O_ITGAV_multiomic_subtype_replication.pdf"
+output_figure_s6j_pdf <- "FigureS6J_PLA2G4A_RNA_subtype_replication.pdf"
+output_figure6i_pdf <- "Figure6I_PLA2G4A_protein_phosphosite_subtype.pdf"
+output_figure_s6e_pdf <- "FigureS6E_CD276_protein_subtype_age_0_40.pdf"
 
 age_upper_limit <- 62
+cd276_age_upper_limit <- 40
 
 itgav_gene <- "ITGAV"
 pla2g4a_gene <- "PLA2G4A"
 pla2g4a_phosphosite <- "S377"
+cd276_gene <- "CD276"
 
 itgav_glycopeptides <- c(
   "ITGAV_ANTTQPGIVEGGQVLK-N3H5F1S0G0",
@@ -275,8 +236,6 @@ make_subtype_boxplot <- function(plot_data) {
 }
 
 save_pdf <- function(plot, output_pdf, width, height) {
-  dir.create(dirname(output_pdf), showWarnings = FALSE, recursive = TRUE)
-  
   pdf(output_pdf, width = width, height = height, useDingbats = FALSE)
   print(plot)
   dev.off()
@@ -318,6 +277,28 @@ metadata <- clinical %>%
 
 sample_ids <- metadata$id
 
+metadata_cd276 <- clinical %>%
+  transmute(
+    id = as.character(id),
+    age = cDisc_age
+  ) %>%
+  inner_join(
+    subtypes %>%
+      transmute(
+        id = as.character(id),
+        subtype = factor(protein.subtype, levels = subtype_levels)
+      ),
+    by = "id"
+  ) %>%
+  filter(
+    !is.na(age),
+    age >= 0,
+    age <= cd276_age_upper_limit,
+    !is.na(subtype)
+  )
+
+sample_ids_cd276 <- metadata_cd276$id
+
 # ------------------------------------------------------------------------------
 # Read omics matrices
 # ------------------------------------------------------------------------------
@@ -328,7 +309,7 @@ phosphosite_data <- read_tsv(phosphosite_file, show_col_types = FALSE)
 glyco_data <- read_tsv(glyco_file, show_col_types = FALSE)
 
 # ------------------------------------------------------------------------------
-# Extract and scale ITGAV features
+# ITGAV data
 # ------------------------------------------------------------------------------
 
 itgav_plot_data_wide <- metadata %>%
@@ -370,10 +351,6 @@ itgav_plot_data_wide <- metadata %>%
     )
   )
 
-# ------------------------------------------------------------------------------
-# Convert ITGAV data to long plotting format
-# ------------------------------------------------------------------------------
-
 itgav_plot_data <- itgav_plot_data_wide %>%
   pivot_longer(
     cols = c(
@@ -408,7 +385,7 @@ itgav_plot_data <- itgav_plot_data_wide %>%
   )
 
 # ------------------------------------------------------------------------------
-# Extract and scale PLA2G4A features
+# PLA2G4A data
 # ------------------------------------------------------------------------------
 
 pla2g4a_plot_data_wide <- metadata %>%
@@ -441,10 +418,6 @@ pla2g4a_plot_data_wide <- metadata %>%
     )
   )
 
-# ------------------------------------------------------------------------------
-# Convert PLA2G4A data to long plotting format
-# ------------------------------------------------------------------------------
-
 pla2g4a_plot_data <- pla2g4a_plot_data_wide %>%
   pivot_longer(
     cols = c(
@@ -476,7 +449,39 @@ pla2g4a_plot_data <- pla2g4a_plot_data_wide %>%
   )
 
 # ------------------------------------------------------------------------------
-# Generate Figure 6M
+# CD276 data — Figure S6E, age 0–40
+# ------------------------------------------------------------------------------
+
+cd276_plot_data <- metadata_cd276 %>%
+  mutate(
+    protein_CD276 = z_score(
+      get_feature_values(
+        data = protein_data,
+        feature_id = cd276_gene,
+        feature_col = "ApprovedGeneSymbol",
+        sample_ids = sample_ids_cd276
+      )
+    )
+  ) %>%
+  pivot_longer(
+    cols = protein_CD276,
+    names_to = "variable",
+    values_to = "value"
+  ) %>%
+  filter(
+    !is.na(value),
+    !is.na(subtype)
+  ) %>%
+  mutate(
+    variable = factor(
+      variable,
+      levels = "protein_CD276",
+      labels = "protein_CD276"
+    )
+  )
+
+# ------------------------------------------------------------------------------
+# Generate plots
 # ------------------------------------------------------------------------------
 
 figure6m_data <- itgav_plot_data %>%
@@ -484,24 +489,12 @@ figure6m_data <- itgav_plot_data %>%
 
 figure6m <- make_subtype_boxplot(figure6m_data)
 
-# ------------------------------------------------------------------------------
-# Generate Figure S6O
-# ------------------------------------------------------------------------------
-
 figure_s6o <- make_subtype_boxplot(itgav_plot_data)
-
-# ------------------------------------------------------------------------------
-# Generate Figure S6J
-# ------------------------------------------------------------------------------
 
 figure_s6j_data <- pla2g4a_plot_data %>%
   filter(variable == "rna_PLA2G4A")
 
 figure_s6j <- make_subtype_boxplot(figure_s6j_data)
-
-# ------------------------------------------------------------------------------
-# Generate Figure 6I
-# ------------------------------------------------------------------------------
 
 figure6i_data <- pla2g4a_plot_data %>%
   filter(variable %in% c("protein_PLA2G4A", "phospho_PLA2G4A_S377")) %>%
@@ -514,6 +507,8 @@ figure6i_data <- pla2g4a_plot_data %>%
 
 figure6i <- make_subtype_boxplot(figure6i_data)
 
+figure_s6e <- make_subtype_boxplot(cd276_plot_data)
+
 # ------------------------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------------------------
@@ -522,9 +517,12 @@ save_pdf(figure6m, output_figure6m_pdf, width = 3.25, height = 4)
 save_pdf(figure_s6o, output_figure_s6o_pdf, width = 8.5, height = 4)
 save_pdf(figure_s6j, output_figure_s6j_pdf, width = 3.25, height = 4)
 save_pdf(figure6i, output_figure6i_pdf, width = 5.5, height = 4)
+save_pdf(figure_s6e, output_figure_s6e_pdf, width = 3.25, height = 4)
 
 message("Age upper limit: ", age_upper_limit)
+message("CD276 age upper limit: ", cd276_age_upper_limit)
 message("Figure 6M plotted samples: ", length(unique(figure6m_data$id)))
 message("Figure S6O plotted samples: ", length(unique(itgav_plot_data$id)))
 message("Figure S6J plotted samples: ", length(unique(figure_s6j_data$id)))
 message("Figure 6I plotted samples: ", length(unique(figure6i_data$id)))
+message("Figure S6E CD276 plotted samples: ", length(unique(cd276_plot_data$id)))
