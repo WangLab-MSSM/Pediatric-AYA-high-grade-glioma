@@ -34,7 +34,7 @@ suppressPackageStartupMessages({
 
 # ---- I/O ----
 
-input_file <- "data/STable1.xlsx"
+input_file <- "../data/STable1.xlsx"
 input_sheet <- "Ref_ClinicalTable"
 
 output_table <- "mutation_survival_association_table.tsv"

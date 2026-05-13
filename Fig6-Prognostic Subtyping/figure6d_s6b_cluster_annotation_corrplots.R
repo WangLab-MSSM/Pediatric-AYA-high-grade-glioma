@@ -71,9 +71,9 @@ suppressPackageStartupMessages({
 # File paths
 # ------------------------------------------------------------------------------
 
-clinical_file <- "data/STable1.xlsx"
-subtype_file  <- "data/STable6.xlsx"
-mutation_file <- "data/cDisc_mutation_10192023.tsv"
+clinical_file <- "../data/STable1.xlsx"
+subtype_file  <- "../data/STable6.xlsx"
+mutation_file <- "../data/cDisc_mutation_10192023.tsv"
 
 # ------------------------------------------------------------------------------
 # Read input data

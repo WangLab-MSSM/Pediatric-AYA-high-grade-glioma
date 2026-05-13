@@ -108,13 +108,13 @@ save_pdf <- function(plot_object, filename, width, height) {
 # ------------------------------------------------------------------------------
 
 vclinical <- readxl::read_xlsx(
-  "data/Stable1.xlsx",
+  "../data/Stable1.xlsx",
   sheet = 5,
   na = "NA"
 )
 
 vprotein <- readxl::read_xlsx(
-  "data/Stable1.xlsx",
+  "../data/Stable1.xlsx",
   sheet = 6,
   na = "NA"
 )

@@ -36,29 +36,13 @@ library(ggplot2)
 library(ggpubr)
 library(readxl)
 
-# Resolve paths relative to repository root.
-script_args <- commandArgs(trailingOnly = FALSE)
-file_arg <- grep("^--file=", script_args, value = TRUE)
 
-script_path <- if (length(file_arg) > 0) {
-  normalizePath(sub("^--file=", "", file_arg[1]))
-} else {
-  NA_character_
-}
 
-repo_root <- if (!is.na(script_path)) dirname(dirname(script_path)) else getwd()
 
-if (
-  !file.exists(file.path(repo_root, "data", "STable6.xlsx")) &&
-  basename(getwd()) == "code_dump"
-) {
-  repo_root <- dirname(getwd())
-}
-
-input_stable6 <- file.path(repo_root, "data", "STable6.xlsx")
-input_clinical <- file.path(repo_root, "data", "clinical_data_04032026.tsv")
-input_proteome <- file.path(repo_root, "data", "cDisc_proteome_imputed_data_09152023.tsv")
-input_glyco <- file.path(repo_root, "data", "Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv")
+input_stable6 <- file.path("../data", "STable6.xlsx")
+input_clinical <- file.path("../data", "clinical_data_04032026.tsv")
+input_proteome <- file.path("../data", "cDisc_proteome_imputed_data_09152023.tsv")
+input_glyco <- file.path("../data", "Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv")
 
 output_pdf <- file.path(
   repo_root,
