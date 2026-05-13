@@ -78,23 +78,18 @@ Do not create subdirectories.
 Do not rename files.
 
 -------------------------------------------------------------------------------
-STEP 3 (OPTIONAL): Build master study data object
-
 Some legacy scripts use a precompiled study data object for convenience.
 
 Most updated figure scripts now read directly from files in the data/
 directory and do not require this object.
 
-To generate the object for compatibility with older scripts, run:
+From within the data/ directory, run:
 
-source("build_study_data00.R")
+   source("build_study_data00.R")
 
 This will generate:
 
-data/pediatric_aya_hgg_analysis_data.rds
-
-See individual figure folder READMEs for script-specific requirements.
-
+   pediatric_aya_hgg_study_data.rds
 -------------------------------------------------------------------------------
 
 STEP 4: Run figure-specific analyses
