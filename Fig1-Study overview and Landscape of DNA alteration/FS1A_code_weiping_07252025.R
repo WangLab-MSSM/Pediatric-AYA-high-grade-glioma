@@ -1,5 +1,5 @@
 #Setup
-data_dir <- '~/Dropbox/HOPE_otherplots/'
+data_dir <- 'HOPE_otherplots'
 output_dir <- data_dir
 
 library(openxlsx)
@@ -11,7 +11,7 @@ library(ggpubr)
 
 # 1. Load data
 # Read Excel sheet 3 (data availability table)
-dat <- read.xlsx("STable1.xlsx", sheet = 3)
+dat <- read.xlsx("../data/STable1.xlsx", sheet = 3)
 
 # Quick check: column sums (all data except sample_id col)
 colSums(dat[,-1])

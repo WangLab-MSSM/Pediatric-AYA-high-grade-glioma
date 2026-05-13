@@ -37,7 +37,7 @@ get_green <- function(n) {
 
 clinical.data <- data.frame(
   read_xlsx(
-    "data/STable1.xlsx",
+    "../data/STable1.xlsx",
     sheet = "ClinicalTable",
     na = c("NA", "", "NaN")
   ),
@@ -49,7 +49,7 @@ row.names(clinical.data)=clinical.data$id
 
 ref.data <- data.frame(
   read_xlsx(
-    "data/STable1.xlsx",
+    "../data/STable1.xlsx",
     sheet = "Ref_ClinicalTable",
     na = c("NA", "", "NaN")
   ),

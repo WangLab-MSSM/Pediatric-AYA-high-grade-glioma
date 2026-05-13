@@ -27,11 +27,11 @@ suppressPackageStartupMessages({
   library(colorspace)
 })
 
-#study_data <- readRDS("pediatric_aya_hgg_study_data.rds")
+#study_data <- readRDS("../data/pediatric_aya_hgg_study_data.rds")
 #clinical.data <- study_data$clinical
 clinical.data <- data.frame(
   read_xlsx(
-    "data/STable1.xlsx",
+    "../data/STable1.xlsx",
     sheet = "ClinicalTable",
     na = c("NA", "", "NaN")
   ),
@@ -39,7 +39,7 @@ clinical.data <- data.frame(
 )
 
 mutation.raw <- read.delim(
-  "data/cDisc_mutation_10192023.tsv",
+  "../data/cDisc_mutation_10192023.tsv",
   sep = "\t",
   check.names = FALSE,
   stringsAsFactors = FALSE,
@@ -52,7 +52,7 @@ row.names(mut.data) <- mutation.raw[, 1]
 
 subtype.data <- data.frame(
   read_xlsx(
-    "data/STable6.xlsx",
+    "../data/STable6.xlsx",
     sheet = "Subtype-cDisc",
     na = c("NA", "", "NaN")
   ),

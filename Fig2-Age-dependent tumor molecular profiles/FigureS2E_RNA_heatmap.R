@@ -37,13 +37,13 @@ mypathways <- c(
 
 ## Read pathway enrichment results
 dist.data <- readxl::read_xlsx(
-  "data/STable2.xlsx",
+  "../data/STable2.xlsx",
   sheet = "Diff_Pathway_RNA",
   na = "NA"
 )
 
 sex_bias.data <- readxl::read_xlsx(
-  "data/STable2.xlsx",
+  "../data/STable2.xlsx",
   sheet = "SexBias_Pathway_RNA",
   na = "NA"
 )

@@ -223,22 +223,22 @@ select_sex_signature <- function(stable4, sex_label) {
 # Load data
 # ------------------------------------------------------------------------------
 
-hope_data <- readRDS("data/pediatric_aya_hgg_study_data.rds")
+hope_data <- readRDS("../data/pediatric_aya_hgg_study_data.rds")
 
 validation_clinical_raw <- read_xlsx(
-  "data/Stable1.xlsx",
+  "../data/Stable1.xlsx",
   sheet = 5,
   na = "NA"
 )
 
 validation_protein_raw <- read_xlsx(
-  "data/Stable1.xlsx",
+  "../data/Stable1.xlsx",
   sheet = 6,
   na = "NA"
 )
 
 stable4_sheet6 <- read_xlsx(
-  "data/Stable4.xlsx",
+  "../data/Stable4.xlsx",
   sheet = 6,
   na = "NA"
 )

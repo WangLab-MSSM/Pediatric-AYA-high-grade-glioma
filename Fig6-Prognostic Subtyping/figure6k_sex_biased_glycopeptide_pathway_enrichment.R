@@ -46,7 +46,7 @@ suppressPackageStartupMessages({
   library(readxl)
 })
 
-input_file <- file.path("data", "STable6.xlsx")
+input_file <- file.path("../data", "STable6.xlsx")
 input_sheet <- "C2-Specific-Sex-Bias-Pathway"
 output_file <- "figure6k_glycopeptide_pathway_enrichment.pdf"
 

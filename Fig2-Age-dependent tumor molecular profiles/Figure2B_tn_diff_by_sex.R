@@ -41,7 +41,7 @@ library(ggplot2)
 # ------------------------------------------------------------------------------
 
 plotme <- read_excel(
-  "data/STable2.xlsx",
+  "../data/STable2.xlsx",
   sheet = "TTMP_Protein_Pathway"
 )
 

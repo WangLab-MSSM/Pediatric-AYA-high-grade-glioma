@@ -30,16 +30,16 @@ suppressPackageStartupMessages({
 # Files and parameters
 # ------------------------------------------------------------------------------
 
-clinical_file <- "data/STable1.xlsx"
+clinical_file <- "../data/STable1.xlsx"
 clinical_sheet <- "ClinicalTable"
 
-subtype_file <- "data/STable6.xlsx"
+subtype_file <- "../data/STable6.xlsx"
 subtype_sheet <- "Subtype-cDisc"
 
-rna_file <- "data/cDisc_rna_coding_10192023.tsv"
-protein_file <- "data/cDisc_proteome_imputed_data_09152023.tsv"
-phosphosite_file <- "data/cDisc_phosphosite_imputed_data_ischemia_removed_motif_11032023.tsv"
-glyco_file <- "data/Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv"
+rna_file <- "../data/cDisc_rna_coding_10192023.tsv"
+protein_file <- "../data/cDisc_proteome_imputed_data_09152023.tsv"
+phosphosite_file <- "../data/cDisc_phosphosite_imputed_data_ischemia_removed_motif_11032023.tsv"
+glyco_file <- "../data/Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv"
 
 output_figure6m_pdf <- "Figure6M_ITGAV_sialylated_glycopeptide.pdf"
 output_figure_s6o_pdf <- "FigureS6O_ITGAV_multiomic_subtype_replication.pdf"

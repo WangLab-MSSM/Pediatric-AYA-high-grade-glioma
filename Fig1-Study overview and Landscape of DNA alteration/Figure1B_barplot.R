@@ -37,7 +37,7 @@ suppressPackageStartupMessages({
 # Input / output
 # ------------------------------------------------------------------------------
 
-clinical_file <- "data/cDisc_clinical_data_04032026.tsv"
+clinical_file <- "../data/cDisc_clinical_data_04032026.tsv"
 output_file <- "Figure1B_barplot_subtype.pdf"
 
 if (!file.exists(clinical_file)) {

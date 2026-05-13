@@ -60,13 +60,13 @@ mypathways <- c(
 ## -----------------------------------------------------------
 
 dist.data <- readxl::read_xlsx(
-  "data/STable2.xlsx",
+  "../data/STable2.xlsx",
   sheet = "Diff_Pathway_Protein",
   na = "NA"
 )
 
 sex_bias.data <- readxl::read_xlsx(
-  "data/STable2.xlsx",
+  "../data/STable2.xlsx",
   sheet = "SexBias_Pathway_Protein",
   na = "NA"
 )
