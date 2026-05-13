@@ -15,7 +15,7 @@
 #   in a bubble plot for PED and AYA groups.
 #
 # Input:
-#   - data/pediatric_aya_hgg_external_data.rds
+#   - data/STable1.xlsx, sheet: Ref_ClinicalTable
 #
 # Outputs:
 #   - mutation_survival_association_table.tsv
@@ -26,13 +26,17 @@
 # ============================================================
 
 suppressPackageStartupMessages({
+  library(readxl)
   library(survival)
   library(ggplot2)
   library(scales)
 })
 
 # ---- I/O ----
-input_file <- "pediatric_aya_hgg_external_data.rds"
+
+input_file <- "data/STable1.xlsx"
+input_sheet <- "Ref_ClinicalTable"
+
 output_table <- "mutation_survival_association_table.tsv"
 output_plot <- "mut_wide_assoc.pdf"
 
@@ -40,18 +44,49 @@ if (!file.exists(input_file)) {
   stop("Input file not found: ", input_file)
 }
 
-# ---- Load data ----
-external.data <- readRDS(input_file)
-ref.data <- external.data$reference_cohort$ref.data
+# ---- Load reference clinical and mutation data ----
 
-if (is.null(ref.data) || nrow(ref.data) == 0) {
+ref.data <- data.frame(
+  read_xlsx(
+    input_file,
+    sheet = input_sheet,
+    na = c("NA", "", "NaN")
+  ),
+  check.names = FALSE
+)
+
+if (nrow(ref.data) == 0) {
   stop("Reference cohort data not found or empty.")
 }
 
+required_cols <- c(
+  "id",
+  "Gender",
+  "os.status",
+  "days",
+  "age",
+  "age_class_name",
+  "First.Diagnosis",
+  "Diag"
+)
+
+missing_cols <- setdiff(required_cols, colnames(ref.data))
+
+if (length(missing_cols) > 0) {
+  stop(
+    "Missing required column(s): ",
+    paste(missing_cols, collapse = ", ")
+  )
+}
+
+ref.data$id <- as.character(ref.data$id)
+row.names(ref.data) <- ref.data$id
 ref.data$Sex <- ref.data$Gender
 
 # ---- Extract mutation matrix ----
+
 mut_cols <- grep("_mut$", colnames(ref.data), value = TRUE)
+
 if (length(mut_cols) == 0) {
   stop("No mutation columns ending in '_mut' were found.")
 }
@@ -59,50 +94,75 @@ if (length(mut_cols) == 0) {
 vali.mut.data <- ref.data[, mut_cols, drop = FALSE]
 row.names(vali.mut.data) <- ref.data$id
 
-ref.meta <- ref.data[, setdiff(colnames(ref.data), grep("mut", colnames(ref.data), value = TRUE)), drop = FALSE]
+ref.meta <- ref.data[
+  ,
+  setdiff(colnames(ref.data), mut_cols),
+  drop = FALSE
+]
+
 ref.data <- data.frame(
   ref.meta,
-  as.matrix(vali.mut.data)[match(ref.meta$id, row.names(vali.mut.data)), , drop = FALSE],
+  vali.mut.data[match(ref.meta$id, row.names(vali.mut.data)), , drop = FALSE],
   check.names = FALSE
 )
 
 # ---- Basic filtering ----
-ref.data <- ref.data[!is.na(ref.data$os.status) & !is.na(ref.data$days), , drop = FALSE]
-ref.data <- ref.data[ref.data$age <= 80, , drop = FALSE]
+
+ref.data <- ref.data[
+  !is.na(ref.data$os.status) &
+    !is.na(ref.data$days) &
+    !is.na(ref.data$age),
+  ,
+  drop = FALSE
+]
+
+ref.data <- ref.data[
+  ref.data$age <= 80,
+  ,
+  drop = FALSE
+]
 
 ref.data$age_class_name <- factor(
   ref.data$age_class_name,
   levels = c("PED", "ADO", "YA", "ADULT", "SEN")
 )
 
-# Optional check retained from exploratory workflow
-temp_missing_age <- ref.data[is.na(ref.data$age_class_name), grep("_mut$", colnames(ref.data)), drop = FALSE]
-if (nrow(temp_missing_age) > 0) {
-  message("Samples with missing age_class_name and non-empty mutation profiles: ",
-          sum(lapply(apply(temp_missing_age, 1, table), length) > 0))
-}
+# ---- Restrict to samples with observed mutation data ----
 
-# ---- Restrict to samples with sufficiently observed mutation data ----
-vali.mut.data <- vali.mut.data[row.names(vali.mut.data) %in% ref.data$id, , drop = FALSE]
+vali.mut.data <- vali.mut.data[
+  row.names(vali.mut.data) %in% ref.data$id,
+  ,
+  drop = FALSE
+]
 
-message("NA mutation counts per sample computed.")
-sample_na_counts <- apply(is.na(vali.mut.data), 1, sum)
+vali.mut.cdata <- vali.mut.data[
+  apply(!is.na(vali.mut.data), 1, sum) > 2,
+  ,
+  drop = FALSE
+]
 
-vali.mut.cdata <- vali.mut.data[apply(!is.na(vali.mut.data), 1, sum) > 2, , drop = FALSE]
 vali.mut.cdata <- vali.mut.cdata[
   ,
   apply(!is.na(vali.mut.cdata), 2, sum) == nrow(vali.mut.cdata),
   drop = FALSE
 ]
 
-vali.cdata <- ref.data[ref.data$id %in% row.names(vali.mut.cdata), , drop = FALSE]
+vali.cdata <- ref.data[
+  ref.data$id %in% row.names(vali.mut.cdata),
+  ,
+  drop = FALSE
+]
+
 vali.cdata <- data.frame(
   vali.cdata[, -grep("_mut$", colnames(vali.cdata)), drop = FALSE],
   vali.cdata[, match(colnames(vali.mut.cdata), colnames(vali.cdata)), drop = FALSE],
   check.names = FALSE
 )
 
-vali.cdata$SurvObj <- Surv(vali.cdata$days, vali.cdata$os.status)
+vali.cdata$SurvObj <- Surv(
+  vali.cdata$days,
+  vali.cdata$os.status
+)
 
 ref.data <- vali.cdata
 vali.mut.data <- vali.mut.cdata
@@ -112,14 +172,29 @@ if (nrow(ref.data) == 0) {
 }
 
 # ---- Cox model helper ----
+
 get_cox_results <- function(age.levs, age.name) {
-  data <- ref.data[ref.data$age_class_name %in% age.levs, , drop = FALSE]
+  
+  data <- ref.data[
+    ref.data$age_class_name %in% age.levs,
+    ,
+    drop = FALSE
+  ]
+  
   cat.var <- colnames(vali.mut.data)
   
   data$Sex <- data$Gender
-  data <- data[!is.na(data$days), , drop = FALSE]
-  data <- data[data$First.Diagnosis %in% "Yes", , drop = FALSE]
-  data <- na.omit(data[, c("SurvObj", cat.var, "age", "Sex", "Diag"), drop = FALSE])
+  
+  data <- data[
+    !is.na(data$days) &
+      data$First.Diagnosis %in% "Yes",
+    ,
+    drop = FALSE
+  ]
+  
+  data <- na.omit(
+    data[, c("SurvObj", cat.var, "age", "Sex", "Diag"), drop = FALSE]
+  )
   
   if (nrow(data) == 0) {
     return(data.frame())
@@ -129,8 +204,16 @@ get_cox_results <- function(age.levs, age.name) {
   data$DMG <- as.numeric(data$Diag %in% "Midline")
   data$GBM <- as.numeric(data$Diag %in% "Glioblastoma")
   
-  data.cat <- na.omit(data[, c(cat.var, "Male", "DMG", "GBM"), drop = FALSE])
-  data.cat.count <- apply(data.cat, 2, function(x) sum(x %in% 1))
+  data.cat <- na.omit(
+    data[, c(cat.var, "Male", "DMG", "GBM"), drop = FALSE]
+  )
+  
+  data.cat.count <- apply(
+    data.cat,
+    2,
+    function(x) sum(x %in% 1)
+  )
+  
   data.cat.count <- data.cat.count[data.cat.count >= 5]
   
   if (length(data.cat.count) == 0) {
@@ -138,7 +221,11 @@ get_cox_results <- function(age.levs, age.name) {
   }
   
   myformula <- as.formula(
-    paste0("SurvObj ~ ", paste(names(data.cat.count), collapse = " + "), " + age")
+    paste0(
+      "SurvObj ~ ",
+      paste(names(data.cat.count), collapse = " + "),
+      " + age"
+    )
   )
   
   myfit <- tryCatch(
@@ -164,13 +251,33 @@ get_cox_results <- function(age.levs, age.name) {
     return(data.frame())
   }
   
-  coef_tab <- data.frame(summary(myfit)$coef, check.names = FALSE)
+  coef_tab <- data.frame(
+    summary(myfit)$coef,
+    check.names = FALSE
+  )
+  
   coef_tab$term <- row.names(coef_tab)
   row.names(coef_tab) <- NULL
   
-  colnames(coef_tab) <- sub("Pr\\(>\\|z\\|\\)", "p.value", colnames(coef_tab))
-  colnames(coef_tab) <- gsub("exp\\(coef\\)", "exp.coef", colnames(coef_tab), fixed = TRUE)
-  colnames(coef_tab) <- gsub("se\\(coef\\)", "se.coef", colnames(coef_tab), fixed = TRUE)
+  colnames(coef_tab) <- sub(
+    "Pr\\(>\\|z\\|\\)",
+    "p.value",
+    colnames(coef_tab)
+  )
+  
+  colnames(coef_tab) <- gsub(
+    "exp\\(coef\\)",
+    "exp.coef",
+    colnames(coef_tab),
+    fixed = TRUE
+  )
+  
+  colnames(coef_tab) <- gsub(
+    "se\\(coef\\)",
+    "se.coef",
+    colnames(coef_tab),
+    fixed = TRUE
+  )
   
   coef_tab$type <- gsub("_mut", "", coef_tab$term)
   coef_tab$age.name <- age.name
@@ -181,16 +288,17 @@ get_cox_results <- function(age.levs, age.name) {
 }
 
 # ---- Run age-stratified models ----
+
 age_levels <- levels(ref.data$age_class_name)
 
 cox_results_list <- list(
-  get_cox_results(age.levs = age_levels[1],   age.name = "PED"),
-  get_cox_results(age.levs = age_levels[2],   age.name = "ADO"),
+  get_cox_results(age.levs = age_levels[1], age.name = "PED"),
+  get_cox_results(age.levs = age_levels[2], age.name = "ADO"),
   get_cox_results(age.levs = age_levels[1:2], age.name = "PED+ADO"),
-  get_cox_results(age.levs = age_levels[3],   age.name = "YA"),
+  get_cox_results(age.levs = age_levels[3], age.name = "YA"),
   get_cox_results(age.levs = age_levels[2:3], age.name = "AYA"),
   get_cox_results(age.levs = age_levels[1:3], age.name = "PED+AYA"),
-  get_cox_results(age.levs = age_levels[4],   age.name = "ADULT"),
+  get_cox_results(age.levs = age_levels[4], age.name = "ADULT"),
   get_cox_results(age.levs = age_levels[1:4], age.name = "ALL")
 )
 
@@ -198,7 +306,12 @@ cox_results_list <- lapply(cox_results_list, function(x) {
   if (nrow(x) == 0) {
     return(x)
   }
-  x$fdr.bonf <- p.adjust(x$p.value, method = "bonferroni")
+  
+  x$fdr.bonf <- p.adjust(
+    x$p.value,
+    method = "bonferroni"
+  )
+  
   x
 })
 
@@ -209,14 +322,21 @@ if (nrow(cox_results) == 0) {
   stop("No Cox model results were produced.")
 }
 
-cox_results$signed.p <- log10(cox_results$p.value) * (-1) * sign(cox_results$coef)
-cox_results$signed.fdr <- log10(cox_results$fdr.bonf) * (-1) * sign(cox_results$coef)
+cox_results$signed.p <- -log10(cox_results$p.value) * sign(cox_results$coef)
+cox_results$signed.fdr <- -log10(cox_results$fdr.bonf) * sign(cox_results$coef)
 
 # ---- Format results for export and plotting ----
+
 plotme <- data.frame(
   type = factor(
     cox_results$type,
-    levels = c(gsub("_mut", "", colnames(vali.mut.data)), "age", "Male", "DMG", "GBM")
+    levels = c(
+      gsub("_mut", "", colnames(vali.mut.data)),
+      "age",
+      "Male",
+      "DMG",
+      "GBM"
+    )
   ),
   signed.p = cox_results$signed.p,
   signed.fdr = cox_results$signed.fdr,
@@ -225,29 +345,43 @@ plotme <- data.frame(
   stringsAsFactors = FALSE
 )
 
-plotme <- plotme[!is.na(plotme$age.name) & !is.na(plotme$type), , drop = FALSE]
-plotme <- plotme[order(abs(plotme$signed.p), decreasing = TRUE), , drop = FALSE]
+plotme <- plotme[
+  !is.na(plotme$age.name) &
+    !is.na(plotme$type),
+  ,
+  drop = FALSE
+]
 
-plotme$type <- ifelse(plotme$type %in% "H33A", "H3-3A", as.character(plotme$type))
+plotme <- plotme[
+  order(abs(plotme$signed.p), decreasing = TRUE),
+  ,
+  drop = FALSE
+]
+
+plotme$type <- ifelse(
+  plotme$type %in% "H33A",
+  "H3-3A",
+  as.character(plotme$type)
+)
 
 plotme$age.name <- factor(
   plotme$age.name,
   levels = c("PED", "ADO", "AYA", "PED+AYA", "ADULT", "ALL")
 )
 
-temp <- plotme
 mylev <- unique(c(
   "GBM",
   "DMG",
   "age",
   "Male",
-  as.character(unique(temp[abs(temp$signed.fdr) > 1, "type"]))
+  as.character(unique(plotme[abs(plotme$signed.fdr) > 1, "type"]))
 ))
-plotme$type <- factor(plotme$type, levels = rev(mylev))
 
+plotme$type <- factor(plotme$type, levels = rev(mylev))
 plotme <- na.omit(plotme)
 
 # ---- Save full results table ----
+
 write.table(
   plotme,
   file = output_table,
@@ -257,15 +391,28 @@ write.table(
 )
 
 # ---- Restrict plot to PED and AYA ----
-plotme <- plotme[plotme$age.name %in% c("PED", "AYA"), , drop = FALSE]
+
+plotme <- plotme[
+  plotme$age.name %in% c("PED", "AYA"),
+  ,
+  drop = FALSE
+]
 
 if (nrow(plotme) == 0) {
   stop("No PED/AYA results available for plotting.")
 }
 
+# ---- Plot ----
+
 p <- ggplot(
   plotme,
-  aes(x = age.name, y = type, size = abs(signed.fdr), color = signed.fdr, label = n)
+  aes(
+    x = age.name,
+    y = type,
+    size = abs(signed.fdr),
+    color = signed.fdr,
+    label = n
+  )
 ) +
   geom_point() +
   geom_point(
@@ -274,7 +421,11 @@ p <- ggplot(
     fill = "white",
     pch = 21
   ) +
-  geom_text(color = "black", size = 2, nudge_y = 0.5) +
+  geom_text(
+    color = "black",
+    size = 2,
+    nudge_y = 0.5
+  ) +
   scale_size(
     limits = c(0, max(abs(plotme$signed.fdr), na.rm = TRUE)),
     range = c(2, 8),
@@ -284,12 +435,16 @@ p <- ggplot(
   ylab("") +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    axis.text.x = element_text(
+      angle = 45,
+      vjust = 1,
+      hjust = 1
+    ),
     legend.position = "right",
     legend.title.align = 0.5
   )
 
-pdf(output_plot, height = 4, width = 3.5)
+pdf(output_plot, height = 4, width = 3.5, useDingbats = FALSE)
 
 print(
   p +
@@ -318,3 +473,6 @@ print(
 )
 
 dev.off()
+
+message("Wrote: ", output_table)
+message("Wrote: ", output_plot)

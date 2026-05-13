@@ -27,10 +27,38 @@ suppressPackageStartupMessages({
   library(colorspace)
 })
 
-study_data <- readRDS("pediatric_aya_hgg_study_data.rds")
-clinical.data <- study_data$clinical
-mut.data <- study_data$mutation$data
-subtype.data <- study_data$subtype
+#study_data <- readRDS("pediatric_aya_hgg_study_data.rds")
+#clinical.data <- study_data$clinical
+clinical.data <- data.frame(
+  read_xlsx(
+    "data/STable1.xlsx",
+    sheet = "ClinicalTable",
+    na = c("NA", "", "NaN")
+  ),
+  check.names = FALSE
+)
+
+mutation.raw <- read.delim(
+  "data/cDisc_mutation_10192023.tsv",
+  sep = "\t",
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  na.strings = c("NA", "", "NaN")
+)
+
+mut.data <- mutation.raw[, -1, drop = FALSE]
+row.names(mut.data) <- mutation.raw[, 1]
+
+
+subtype.data <- data.frame(
+  read_xlsx(
+    "data/STable6.xlsx",
+    sheet = "Subtype-cDisc",
+    na = c("NA", "", "NaN")
+  ),
+  check.names = FALSE
+)
+
 
 cluster.col <- c("1" = "#B94D3C", "2" = "#65B023", "3" = "#855F82")
 male.cl.col <- darken(cluster.col, 0.2)
