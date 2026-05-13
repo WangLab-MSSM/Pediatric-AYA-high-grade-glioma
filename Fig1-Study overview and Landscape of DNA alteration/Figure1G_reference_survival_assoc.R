@@ -34,38 +34,36 @@ get_green <- function(n) {
   colorRampPalette(RColorBrewer::brewer.pal(9, "Greens")[-(1:2)])(n)
 }
 
-study.data <- readRDS("pediatric_aya_hgg_study_data.rds")
-external.data <- readRDS("pediatric_aya_hgg_external_data.rds")
 
-clinical.data <- study.data$clinical
-ref.data <- external.data$reference_cohort$ref.data
-ref.cdata <- external.data$reference_cohort$ref.cdata
+clinical.data <- data.frame(
+  read_xlsx(
+    "data/STable1.xlsx",
+    sheet = "ClinicalTable",
+    na = c("NA", "", "NaN")
+  ),
+  check.names = FALSE
+)
+row.names(clinical.data)=clinical.data$id
 
-ref.data$has.complete.mut <- ref.data$id %in% ref.cdata$id
 
-vali.surv.data <- ref.data[, c("id", "SurvObj", "age_class_name", "First.Diagnosis", "Gender")]
+
+ref.data <- data.frame(
+  read_xlsx(
+    "data/STable1.xlsx",
+    sheet = "Ref_ClinicalTable",
+    na = c("NA", "", "NaN")
+  ),
+  check.names = FALSE
+)
+ref.data$age_class_name=factor(ref.data$age_class_name,levels=c("PED","ADO","YA","ADULT","SEN"))
+
+ref.data$SurvObj=Surv(
+  ref.data$days,
+  ref.data$os.status
+)
+vali.surv.data <- ref.data[, c("id", "SurvObj", "age_class_name", "Gender")]
 vali.surv.data <- data.frame(vali.surv.data, as.matrix(vali.surv.data$SurvObj))
 
-get_data00 <- function(
-    id = clinical.data$id,
-    os = clinical.data$os,
-    os_status = clinical.data$os_status,
-    max.day = 2000
-) {
-  os_status <- ifelse(os > max.day, 0, os_status)
-  os <- ifelse(os > max.day, max.day, os)
-  
-  data0 <- data.frame(
-    id = id,
-    days = os,
-    os.status = os_status
-  )
-  
-  data0$SurvObj <- with(data0, Surv(days, os.status))
-  data0$os.status[is.na(data0$days)] <- NA
-  
-  data0
-}
 
 surv.data <- vali.surv.data
 surv.data$SurvObj <- with(surv.data, Surv(time, status))
@@ -79,7 +77,7 @@ get_surv.cl <- function(
     cl.name = "age_class_name"
 ) {
   data <- data[!is.na(data$time), ]
-  data <- data[data$First.Diagnosis %in% "Yes", ]
+  
   data$cl <- data[, cl.name]
   
   fit <- survfit(SurvObj ~ cl, data = data)
@@ -118,7 +116,7 @@ get_surv.cl <- function(
   )
   
   if (!is.null(scheme)) {
-    mypal0 <- scheme(length(levels(data$cl)))
+    mypal0 <- scheme(length(levels(factor(data$cl))))
     names(mypal0) <- levels(data$cl)
   }
   
