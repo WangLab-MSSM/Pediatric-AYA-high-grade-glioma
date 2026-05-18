@@ -1,90 +1,117 @@
-# Pediatric AYA High-Grade Glioma (HOPE Study) — Analysis Repository
+# Pediatric/AYA High-Grade Glioma (HOPE Study) — Analysis Repository
 
-This repository contains code used to generate all figures and tables for the HOPE pediatric/AYA high-grade glioma study.
+This repository contains code used to generate all figures and tables for the HOPE pediatric and adolescent/young adult (AYA) high-grade glioma study.
 
--------------------------------------------------------------------------------
+---
 
-REPRODUCIBILITY OVERVIEW
+# Reproducibility Overview
 
-1. Download supplementary tables from the journal website
-2. Download raw data from PDC
-3. Build the study data object
-4. Consult the README for each figure of interest
+1. Download supplementary tables from the journal website  
+2. Download raw data from the PDC  
+3. (Optional) Build the study data object  
+4. Follow the README for the figure of interest  
 
--------------------------------------------------------------------------------
+---
 
-REPOSITORY STRUCTURE
+# Repository Structure
 
-Each folder corresponds to a figure in the manuscript and contains the code
-required to reproduce that analysis.
+Each folder corresponds to a figure in the manuscript and contains the scripts required to reproduce that analysis.
 
-Figure-to-folder mapping:
+## Figure-to-Folder Mapping
 
-Figure 1
-  Fig1-Study overview and Landscape of DNA alteration
+| Manuscript Figure | Repository Folder |
+|---|---|
+| Figure 1 | `Fig1-Study overview and Landscape of DNA alteration` |
+| Figure 2 | `Fig2-Age-dependent tumor molecular profiles` |
+| Figure 3 | `Fig3-Cis and Trans Regulation` |
+| Figure 4 | `Fig4-Prognostic markers/pathways based on AD-TMP` |
+| Figure 5 | `Fig5-Causal Kinase Analysis` |
+| Figure 6 | `Fig6-Prognostic Subtyping` |
+| Figure 7 | `Fig7-Immune Landscape` |
 
-Figure 2
-  Fig2-Age-dependent tumor molecular profiles
+---
 
-Figure 3
-  Fig3-Cis and Trans Regulation
+# Data Availability and Setup
 
-Figure 4
-  Fig4-Prognostic markers/pathways based on AD-TMP
+## Step 1 — Download Supplementary Tables
 
-Figure 5
-  Fig5-Causal Kinase Analysis
+Download Supplementary Tables `STable1`–`STable7` associated with the manuscript from the journal website.
 
-Figure 6
-  Fig6-Prognostic Subtyping
+Place all seven supplementary table files directly into:
 
-Figure 7
-  Fig7-Immune Landscape
-
--------------------------------------------------------------------------------
-
-DATA AVAILABILITY AND SETUP
-
-STEP 1: Download supplementary tables from the journal website
-
-Download Supplementary Tables STable1–STable7 associated with the manuscript.
-
-7 supplementary table files should be downloaded and placed in:
-
+```text
 data/
+```
 
-Do not create subdirectories.
-Do not rename files.
+Important:
 
--------------------------------------------------------------------------------
+- Do not create subdirectories
+- Do not rename files
 
-STEP 2: Download raw data from PDC
+---
 
-1. Go to:
+## Step 2 — Download Raw Data from the PDC
+
+1. Go to the PDC website:
+
+   ```text
    https://proteomic.datacommons.cancer.gov/pdc/
+   ```
 
-2. Search for:
+2. Search for one of the following study IDs:
+
+   ```text
    PDC000497
    PDC000498
    PDC000499
+   ```
 
-3. Download all associated data tables.
+3. Open the study summary page.
 
-14 data files should be downloaded and placed in:
+4. In the **Supplementary Data** panel:
 
+   - Locate the row labeled:
+
+     ```text
+     Publication Supplementary Material (Archive)
+     ```
+
+   - Click the blue file count (`1`)
+
+5. Download:
+
+   ```text
+   HOPE_AYA_supplementary_files_updated_05032026.zip
+   ```
+
+6. Unzip the archive.
+
+The archive contains the 14 processed data files required for analyses associated with:
+
+```text
+PDC000497
+PDC000498
+PDC000499
+```
+
+Place all extracted files directly into:
+
+```text
 data/
+```
 
-Do not create subdirectories.
-Do not rename files.
+Important:
 
--------------------------------------------------------------------------------
+- Do not create subdirectories
+- Do not rename files
 
-## Step 3 (Optional) — Build the Study Data Object
+---
+
+# Step 3 (Optional) — Build the Study Data Object
 
 Some legacy scripts use a precompiled study data object for convenience.
 
-Most updated figure scripts now read directly from files in the `data/`
-directory and do not require this object.
+Most updated figure scripts read directly from files in the `data/` directory and do **not** require this object.
 
 From within the `data/` directory, run:
 
@@ -94,23 +121,24 @@ source("build_study_data00.R")
 
 This will generate:
 
-    pediatric_aya_hgg_study_data.rds
--------------------------------------------------------------------------------
+```text
+pediatric_aya_hgg_study_data.rds
+```
 
-STEP 4: Run figure-specific analyses
+---
 
-After generating the study data object:
+# Step 4 — Run Figure-Specific Analyses
 
-1. Navigate to the folder corresponding to the figure of interest.
-2. Follow the instructions in that folder’s README.md.
-3. Run the scripts to reproduce the analysis.
+1. Navigate to the folder corresponding to the figure of interest  
+2. Open that folder’s `README.md`  
+3. Run the scripts described there to reproduce the analysis  
 
-Each figure folder contains self-contained code and any additional instructions
-required.
+Each figure folder contains self-contained code and any figure-specific instructions.
 
--------------------------------------------------------------------------------
+---
 
-REQUIREMENTS
+# Requirements
 
-This code was developed using R.
-Required packages are loaded within each script.
+- Analyses were developed in R
+- Required R packages are loaded within each script
+- Scripts assume all required input files are present in the `data/` directory
