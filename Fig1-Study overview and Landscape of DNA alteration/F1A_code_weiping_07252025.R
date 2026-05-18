@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 })
 
 # Define directories
-data_dir <- '~/Dropbox/HOPE_otherplots/'
+data_dir <- '../data'
 output_dir <- data_dir
 
 # 1. Load clinical data
