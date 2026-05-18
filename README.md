@@ -76,7 +76,7 @@ Important:
      Publication Supplementary Material (Archive)
      ```
 
-   - Click the blue file count (`1`)
+   - Click the file count, 1
 
 5. Download:
 
