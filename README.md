@@ -8,8 +8,9 @@ This repository contains code used to generate all figures and tables for the HO
 
 1. Download supplementary tables from the journal website  
 2. Download raw data from the PDC  
-3. (Optional) Build the study data object  
-4. Follow the README for the figure of interest  
+3. (Optional) Install the `ageTMP` package for trajectory/CPSA analyses  
+4. (Optional) Build the study data object for original convenience scripts  
+5. Follow the README for the figure of interest  
 
 ---
 
@@ -107,9 +108,50 @@ Important:
 
 ---
 
-# Step 3 (Optional) — Build the Study Data Object
+# Step 3 (Optional) — Install the ageTMP Package
 
-Some legacy scripts use a precompiled study data object for convenience.
+This repository includes the source code for the `ageTMP` R package:
+
+```text
+ageTMP/
+```
+
+`ageTMP` provides the reproducible analysis framework for age-dependent tumor
+molecular trajectory analyses, tumor-normal/reference trajectory comparisons,
+trajectory clustering, and downstream Cross-Population Survival Analysis
+(CPSA). Some updated manuscript scripts, especially Figure 2 trajectory
+analyses and AD-TMP/CPSA workflows, call package functions directly rather than
+relying on manually prepared intermediate files.
+
+Install `ageTMP` from the repository root before running figure scripts that
+explicitly load it:
+
+```r
+install.packages("remotes")
+remotes::install_local("ageTMP")
+```
+
+Then confirm installation:
+
+```r
+library(ageTMP)
+ageTMP::ageTMP_status()
+```
+
+Important:
+
+- `ageTMP` is required only for scripts that call `library(ageTMP)` or
+  `ageTMP::`.
+- Figure folders may contain both original paper scripts and updated
+  package-based reproducibility scripts.
+- The package is designed to read from documented files in `data/` and from
+  documented package reference data where applicable.
+
+---
+
+# Step 4 (Optional) — Build the Study Data Object
+
+Some original figure scripts use a precompiled study data object for convenience.
 
 Most updated figure scripts read directly from files in the `data/` directory and do **not** require this object.
 
@@ -127,7 +169,7 @@ pediatric_aya_hgg_study_data.rds
 
 ---
 
-# Step 4 — Run Figure-Specific Analyses
+# Step 5 — Run Figure-Specific Analyses
 
 1. Navigate to the folder corresponding to the figure of interest  
 2. Open that folder’s `README.md`  
