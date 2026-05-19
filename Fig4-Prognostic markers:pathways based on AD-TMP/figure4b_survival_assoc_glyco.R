@@ -127,7 +127,7 @@ published_rows <- data.frame(
     "ITGAV - N2H9F0S0G0",
     "ITGB1 - N2H5F0S0G0",
     "ITGB3 - N2H5F0S0G0",
-    "LAMC1 - N3H5F0S0G0",
+    "LAMC1 - N3H4F0S0G0",
     "NCAM1 - N5H3F1S0G0",
     "NID2 - N4H4F1S1G0",
     "PLOD1 - N2H7F0S0G0",
@@ -136,7 +136,7 @@ published_rows <- data.frame(
     "CD276 - N2H5F0S0G0",
     "LAMP1 - N3H4F1S1G0",
     "LAMP1 - N3H6F1S0G0",
-    "LAMP2 - N2H5F0S0G0",
+    "LAMP2 - N2H6F0S0G0",
     "LRP1 - N2H8F0S0G0"
   ),
   stringsAsFactors = FALSE
@@ -348,11 +348,22 @@ glyco_heatmap <- ComplexHeatmap::Heatmap(
         x,
         y,
         pch = 16,
-        size = grid::unit(0.65, "mm"),
+        size = grid::unit(1.05, "mm"),
         gp = grid::gpar(col = "black")
       )
     }
   }
+)
+
+fdr_point_legend <- ComplexHeatmap::Legend(
+  title = "Significance",
+  labels = paste0("FDR < ", fdr_threshold),
+  type = "points",
+  pch = 16,
+  size = grid::unit(1.05, "mm"),
+  legend_gp = grid::gpar(col = "black"),
+  title_gp = grid::gpar(fontsize = 8, fontface = "bold"),
+  labels_gp = grid::gpar(fontsize = 7)
 )
 
 message(
@@ -377,6 +388,7 @@ ComplexHeatmap::draw(
   glyco_heatmap,
   heatmap_legend_side = "right",
   annotation_legend_side = "right",
+  annotation_legend_list = list(fdr_point_legend),
   newpage = FALSE,
   padding = grid::unit(c(10, 4, 4, 4), "mm")
 )
