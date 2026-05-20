@@ -39,6 +39,8 @@ if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
 
 # read data ################################
 data_dir = '../data'
+output_dir = 'output'
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 clinical = ageTMP::ageTMP_load_clinical(data_dir)
 clinical$id = ageTMP::ageTMP_normalize_sample_ids(clinical$id)
@@ -110,13 +112,13 @@ library(ggplot2)
 library(ggpubr)
 
 save_pdf_plot <- function(plot, filename, width, height) {
-  grDevices::pdf(filename, width = width, height = height, useDingbats = FALSE)
+  grDevices::pdf(file.path(output_dir, filename), width = width, height = height, useDingbats = FALSE)
   print(plot)
   grDevices::dev.off()
 }
 
 save_pdf_grid <- function(grob, filename, width, height) {
-  grDevices::pdf(filename, width = width, height = height, useDingbats = FALSE)
+  grDevices::pdf(file.path(output_dir, filename), width = width, height = height, useDingbats = FALSE)
   grid::grid.newpage()
   grid::grid.draw(grob)
   grDevices::dev.off()
@@ -650,7 +652,7 @@ lwd.temp = 1
 
 f = colorRamp2(breaks = c(1:4), colors = col.subtype[c(1:3,5)])
 
-pdf('FigureS3E_CNV_cis_regulation_circle.pdf',height = 10,width = 10)
+pdf(file.path(output_dir, 'FigureS3E_CNV_cis_regulation_circle.pdf'),height = 10,width = 10)
 par(mar = c(0,0,0,0))
 
 circos.par(gap.degree = c(rep(1/2,21),3.5,3.5),track.margin = c(0.003,0.003),start.degree=270-8.3-3.5,

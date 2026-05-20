@@ -347,9 +347,11 @@ pb <- Heatmap(
 ## Export combined heatmap figure
 ## -----------------------------------------------------------
 
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 pdf(
-  "Figure2E_Protein_Pathway_Heatmaps.pdf",
+  file.path(output_dir, "Figure2E_Protein_Pathway_Heatmaps.pdf"),
   width = 10,
   height = 5
 )

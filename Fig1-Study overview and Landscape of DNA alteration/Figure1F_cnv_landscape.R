@@ -1,4 +1,6 @@
 library(openxlsx)
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 # read data ################################
 clinical = read.xlsx('../data/STable1.xlsx', sheet = "ClinicalTable")
 
@@ -97,6 +99,6 @@ h.U40.r = Heatmap(t(cnv.U40),name = 'CNV',
                   # ,top_annotation = ha2
 )
 
-pdf('cnv_landscape_U40_040524_raster.pdf',height = 6,width = 12)
+pdf(file.path(output_dir, 'Figure1F_cnv_landscape.pdf'),height = 6,width = 12)
 draw(h.U40.r)
 dev.off()

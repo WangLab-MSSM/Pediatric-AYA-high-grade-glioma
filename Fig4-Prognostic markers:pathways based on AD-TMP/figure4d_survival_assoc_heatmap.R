@@ -46,7 +46,9 @@ input_file <- file.path("../data", "STable4.xlsx")
 protein_sheet <- "SA-Protein-cDisc-Ref"
 pathway_sheet <- "SA-Protein-Pathway-cDisc-Ref"
 
-output_file <- "Figure4D_protein_survival_overlap.pdf"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_file <- file.path(output_dir, "Figure4D_protein_survival_overlap.pdf")
 
 selected_pathways <- c(
   "GOBP_RIBOSOME_BIOGENESIS",

@@ -18,7 +18,7 @@
 #       * Disc_Mutation
 #
 # Outputs:
-#   - cascade_byage_hope.pdf
+#   - Figure1C_oncplot.pdf
 #
 # Author:
 #   Nicole L. Tignor, PhD
@@ -48,11 +48,12 @@ data_dir <- if (length(args) >= 1) {
   normalizePath("../data", mustWork = TRUE)
 }
 
-output_dir <- if (length(args) >= 2) args[[2]] else "."
+output_dir <- if (length(args) >= 2) args[[2]] else "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 input_workbook <- file.path(data_dir, "STable1.xlsx")
 
-heatmap_pdf_out <- file.path(output_dir, "cascade_byage_hope.pdf")
+heatmap_pdf_out <- file.path(output_dir, "Figure1C_oncplot.pdf")
 
 # ------------------------------------------------------------------------------
 # Helper functions

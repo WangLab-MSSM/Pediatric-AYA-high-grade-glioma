@@ -26,6 +26,9 @@ library(ggplot2)
 library(RColorBrewer)
 library(ggpubr)
 
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 # 1. Load data
 # Read Excel sheet 3 (data availability table)
 dat <- read.xlsx("../data/STable1.xlsx", sheet = 3)
@@ -134,4 +137,4 @@ q <- q + geom_tile(data = dat_tmp, aes(height = 0.5, width = 0.9),
   )
 
 # 8. Save plot
-ggsave(filename = "FigureS1A_sample_availability.pdf", plot = q, width = 12, height = 4)
+ggsave(filename = file.path(output_dir, "FigureS1A_sample_availability.pdf"), plot = q, width = 12, height = 4)

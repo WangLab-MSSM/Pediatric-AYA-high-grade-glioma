@@ -41,6 +41,9 @@ suppressPackageStartupMessages({
   library(grid)
 })
 
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 sex.col <- c(
   "Male" = "#0707CF",
   "Female" = "#CC0303"
@@ -261,7 +264,7 @@ tpsa.ht <- Heatmap(
   )
 )
 
-pdf("Figure4C_survival_landscape.pdf", height = 8, width = 7)
+pdf(file.path(output_dir, "Figure4C_survival_landscape.pdf"), height = 8, width = 7)
 draw(tpsa.ht)
 dev.off()
 

@@ -33,6 +33,8 @@ if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
 repo_data <- "../data"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 clinical_file <- file.path(repo_data, "STable1.xlsx")
 protein_file <- file.path(repo_data, "cDisc_proteome_imputed_data_09152023.tsv")
 stable2_file <- file.path(repo_data, "STable2.xlsx")
@@ -722,8 +724,8 @@ draw_long_heatmap <- function(file, device = c("pdf", "png")) {
   grid::upViewport(2)
 }
 
-pdf_file <- "Figure2A_from_ageTMP.pdf"
-png_file <- "Figure2A_from_ageTMP.png"
+pdf_file <- file.path(output_dir, "Figure2A_from_ageTMP.pdf")
+png_file <- file.path(output_dir, "Figure2A_from_ageTMP.png")
 draw_long_heatmap(pdf_file, "pdf")
 draw_long_heatmap(png_file, "png")
 

@@ -30,6 +30,9 @@ suppressPackageStartupMessages({
   library(RColorBrewer)
 })
 
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 get_green <- function(n) {
   colorRampPalette(RColorBrewer::brewer.pal(9, "Greens")[-(1:2)])(n)
 }
@@ -111,7 +114,7 @@ get_surv.cl <- function(
   
   write.csv(
     surv_table,
-    paste0(mytitle, "_supplementary_survival_table.csv"),
+    file.path(output_dir, paste0(mytitle, "_supplementary_survival_table.csv")),
     row.names = FALSE
   )
   
@@ -147,6 +150,6 @@ aligned <- cowplot::align_plots(
   align = "v"
 )
 
-pdf("Figure1G_reference_survival_assoc.pdf", width = 6, height = 7)
+pdf(file.path(output_dir, "Figure1G_reference_survival_assoc.pdf"), width = 6, height = 7)
 print(cowplot::plot_grid(aligned[[1]], aligned[[2]], ncol = 1, rel_heights = c(4, 1.5)))
 dev.off()

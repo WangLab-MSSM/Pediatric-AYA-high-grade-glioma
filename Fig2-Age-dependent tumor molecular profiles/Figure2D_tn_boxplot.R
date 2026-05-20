@@ -221,6 +221,8 @@ plots <- lapply(mygenes, get_tn_plot)
 ## Save figure
 ## ------------------------------------------------------------
 
-pdf("Figure2D_protein_tn.pdf", height = 3, width = 3 * length(mygenes))
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+pdf(file.path(output_dir, "Figure2D_protein_tn.pdf"), height = 3, width = 3 * length(mygenes))
 print(ggpubr::ggarrange(plotlist = plots, common.legend = TRUE, nrow = 1))
 dev.off()

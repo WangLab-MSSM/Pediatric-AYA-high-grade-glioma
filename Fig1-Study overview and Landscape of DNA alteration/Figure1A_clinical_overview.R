@@ -12,7 +12,7 @@
 #   - ../data/STable1.xlsx, sheet ClinicalTable
 #
 # Outputs:
-#   - hope_clinical_data_availability_revision_age_continuous_F1A.pdf
+#   - Figure1A_clinical_overview.pdf
 #
 # Author: Weiping Ma
 # Affiliation: Icahn School of Medicine at Mount Sinai
@@ -29,7 +29,8 @@ suppressPackageStartupMessages({
 
 # Define directories
 data_dir <- '../data'
-output_dir <- '.'
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # 1. Load clinical data
 annot <- read.xlsx(file.path(data_dir, "STable1.xlsx"), sheet = "ClinicalTable")
@@ -134,7 +135,7 @@ names(col.bg) <- unique(plot_df2 %>% dplyr::select(Age))
 
 # 5. Generate circular heatmap
 circos.clear()
-pdf(file = file.path(output_dir, "hope_clinical_data_availability_revision_age_continuous_F1A.pdf"), width = 10, height = 10)
+pdf(file = file.path(output_dir, "Figure1A_clinical_overview.pdf"), width = 10, height = 10)
 
 circos.par(start.degree = 90+(360-5*3-89-k)/(92+k)*k/2+0.5+k/2-1, 
            gap.degree = 1, gap.after = c(5), points.overflow.warning = FALSE)

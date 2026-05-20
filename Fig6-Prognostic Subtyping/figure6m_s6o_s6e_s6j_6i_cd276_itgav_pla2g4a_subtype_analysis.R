@@ -41,11 +41,13 @@ protein_file <- "../data/cDisc_proteome_imputed_data_09152023.tsv"
 phosphosite_file <- "../data/cDisc_phosphosite_imputed_data_ischemia_removed_motif_11032023.tsv"
 glyco_file <- "../data/Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv"
 
-output_figure6m_pdf <- "Figure6M_ITGAV_sialylated_glycopeptide.pdf"
-output_figure_s6o_pdf <- "FigureS6O_ITGAV_multiomic_subtype_replication.pdf"
-output_figure_s6j_pdf <- "FigureS6J_PLA2G4A_RNA_subtype_replication.pdf"
-output_figure6i_pdf <- "Figure6I_PLA2G4A_protein_phosphosite_subtype.pdf"
-output_figure_s6e_pdf <- "FigureS6E_CD276_protein_subtype_age_0_40.pdf"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_figure6m_pdf <- file.path(output_dir, "Figure6M_ITGAV_sialylated_glycopeptide.pdf")
+output_figure_s6o_pdf <- file.path(output_dir, "FigureS6O_ITGAV_multiomic_subtype_replication.pdf")
+output_figure_s6j_pdf <- file.path(output_dir, "FigureS6J_PLA2G4A_RNA_subtype_replication.pdf")
+output_figure6i_pdf <- file.path(output_dir, "Figure6I_PLA2G4A_protein_phosphosite_subtype.pdf")
+output_figure_s6e_pdf <- file.path(output_dir, "FigureS6E_CD276_protein_subtype_age_0_40.pdf")
 
 age_upper_limit <- 62
 cd276_age_upper_limit <- 40

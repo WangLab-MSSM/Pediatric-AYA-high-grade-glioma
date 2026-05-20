@@ -6,6 +6,8 @@ Complete the shared setup steps in the root `README.md` before running these scr
 cd "Fig5-Causal Kinase Analysis"
 ```
 
+Generated PDFs and PNG previews are written to `output/`.
+
 Note: this folder includes a figure-specific `data/` directory containing the
 kinase-network support files used by `Figure5_S5_causal_kinase_analysis.R`. Those files are read from the
 local Figure 5 folder rather than the shared repository-level `../data/`

@@ -48,7 +48,9 @@ suppressPackageStartupMessages({
 
 input_file <- file.path("../data", "STable6.xlsx")
 input_sheet <- "C2-Specific-Sex-Bias-Pathway"
-output_file <- "Figure6K_glycopeptide_pathway_enrichment.pdf"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_file <- file.path(output_dir, "Figure6K_glycopeptide_pathway_enrichment.pdf")
 
 # Curated pathway set used in the original Figure 6K plotting block. The order
 # below is the manuscript curation order; the plotted y-axis order follows the

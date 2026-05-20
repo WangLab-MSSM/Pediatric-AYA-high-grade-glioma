@@ -6,6 +6,8 @@ Complete the shared setup steps in the root `README.md` before running these scr
 cd "Fig1-Study overview and Landscape of DNA alteration"
 ```
 
+Generated PDFs, PNG previews, and tables are written to `output/`.
+
 ## Figure Panels
 
 | Analysis/Figures/Tables | Script | Section in the manuscript | Simplified legend |
