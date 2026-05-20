@@ -1,11 +1,11 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# File: figure1c_survival_association_heatmap.R
+# File: Figure4C_survival_landscape.R
 # ==============================================================================
 #
 # Title:
-#   Figure 1C — Cross-cohort survival association summary heatmap
+#   Figure 4C — Cross-cohort survival association summary heatmap
 #
 # Author:
 #   Nicole L. Tignor, PhD
@@ -24,7 +24,7 @@
 #       Sheet: SA-RNA-cDisc-Ref
 #
 # Output:
-#   - Figure1c.pdf
+#   - Figure4C_survival_landscape.pdf
 #
 # Notes:
 #   Values with absolute signed score > 1 are encoded by sign:
@@ -40,6 +40,18 @@ suppressPackageStartupMessages({
   library(ComplexHeatmap)
   library(grid)
 })
+
+sex.col <- c(
+  "Male" = "#0707CF",
+  "Female" = "#CC0303"
+)
+
+age.class.col <- c(
+  "PED" = "#B8E3B2",
+  "ADO" = "#77C679",
+  "YA" = "#238443",
+  "ADULT" = "#00441B"
+)
 
 # ------------------------------------------------------------------------------
 # Helper functions
@@ -249,7 +261,7 @@ tpsa.ht <- Heatmap(
   )
 )
 
-pdf("Figure1c.pdf", height = 8, width = 7)
+pdf("Figure4C_survival_landscape.pdf", height = 8, width = 7)
 draw(tpsa.ht)
 dev.off()
 

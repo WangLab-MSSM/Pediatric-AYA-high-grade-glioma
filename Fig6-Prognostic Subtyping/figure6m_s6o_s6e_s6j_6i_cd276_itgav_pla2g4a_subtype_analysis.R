@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# File: figure6m_s6o_s6j_6i_s6e_subtype_analysis.R
+# File: Figure6M_S6O_S6E_S6J_6I_cd276_itgav_pla2g4a_subtype_analysis.R
 # ==============================================================================
 #
 # Title:

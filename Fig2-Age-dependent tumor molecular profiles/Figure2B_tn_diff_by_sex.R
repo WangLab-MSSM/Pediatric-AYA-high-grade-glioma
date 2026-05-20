@@ -21,7 +21,7 @@
 #     └── Sheet: TTMP_Protein_Pathway
 #
 # Output:
-#   figures/dotplot_tn_cluster_pathway_all.pdf
+#   Figure2B_barplot_tn_cluster_pathway_all.pdf
 #
 # Dependencies:
 #   readxl
@@ -153,4 +153,3 @@ ggsave(
   height = 7,
   units = "in"
 )
-

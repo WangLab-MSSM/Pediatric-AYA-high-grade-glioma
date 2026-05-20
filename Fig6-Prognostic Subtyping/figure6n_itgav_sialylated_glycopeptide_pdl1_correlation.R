@@ -15,7 +15,7 @@
 #   tables and keeps the original ggplot/stat_cor/linear-smooth visual logic.
 #
 # Output:
-#   figure6n_itgav_sialylated_glycopeptide_pdl1_correlation.pdf
+#   Figure6N_itgav_sialylated_glycopeptide_pdl1_correlation.pdf
 # -----------------------------------------------------------------------------
 
 required_packages <- c("ggplot2", "ggpubr", "readxl")
@@ -40,19 +40,20 @@ library(readxl)
 
 
 input_stable6 <- file.path("../data", "STable6.xlsx")
-input_clinical <- file.path("../data", "clinical_data_04032026.tsv")
+input_clinical <- file.path("../data", "STable1.xlsx")
+clinical_sheet <- "ClinicalTable"
 input_proteome <- file.path("../data", "cDisc_proteome_imputed_data_09152023.tsv")
 input_glyco <- file.path("../data", "Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv")
 
-output_pdf <- file.path(
-  repo_root,
-  "figure6n_itgav_sialylated_glycopeptide_pdl1_correlation.pdf"
-)
+output_pdf <- "Figure6N_itgav_sialylated_glycopeptide_pdl1_correlation.pdf"
 
 stopifnot(file.exists(input_stable6))
 stopifnot(file.exists(input_clinical))
 stopifnot(file.exists(input_proteome))
 stopifnot(file.exists(input_glyco))
+if (!clinical_sheet %in% readxl::excel_sheets(input_clinical)) {
+  stop("Clinical sheet not found in STable1.xlsx: ", clinical_sheet, call. = FALSE)
+}
 
 target_glycopeptide <- "ITGAV_ANTTQPGIVEGGQVLK-N3H5F1S1G0"
 target_protein <- "CD274"
@@ -100,13 +101,11 @@ subtypes$subtype <- factor(
   levels = c("M1", "F1", "M2", "F2", "M3", "F3")
 )
 
-clinical <- read.delim(
+clinical <- readxl::read_excel(
   input_clinical,
-  sep = "\t",
-  header = TRUE,
-  check.names = FALSE,
-  stringsAsFactors = FALSE
+  sheet = clinical_sheet
 )
+clinical <- as.data.frame(clinical, check.names = FALSE)
 
 clinical <- clinical[, c("id", "cDisc_age", "cDisc_Gender")]
 colnames(clinical) <- c("id", "age", "sex_clinical")

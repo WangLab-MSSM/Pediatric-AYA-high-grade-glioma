@@ -2,7 +2,7 @@
 % Please edit documentation in R/load-public-data.R
 \name{ageTMP_load_clinical}
 \alias{ageTMP_load_clinical}
-\title{Load public cDisc clinical data}
+\title{Load public cDisc clinical data from STable1}
 \usage{
 ageTMP_load_clinical(data_dir = "data")
 }
@@ -13,5 +13,5 @@ ageTMP_load_clinical(data_dir = "data")
 A data frame with clinical metadata.
 }
 \description{
-Load public cDisc clinical data
+Load public cDisc clinical data from STable1
 }

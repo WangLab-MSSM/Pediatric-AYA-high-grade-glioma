@@ -2,7 +2,7 @@
 
 # ============================================================
 # Figure 1G | Reference Cohort Survival Analysis by Age Class
-# File: figure1g_reference_survival_by_age_class.R
+# File: Figure1G_reference_survival_assoc.R
 #
 # Description:
 #   Generates Kaplan–Meier survival curves for the external
@@ -10,8 +10,7 @@
 #   supplementary survival summary table.
 #
 # Inputs:
-#   - data/pediatric_aya_hgg_study_data.rds
-#   - data/pediatric_aya_hgg_external_data.rds
+#   - ../data/STable1.xlsx, sheets ClinicalTable and Ref_ClinicalTable
 #
 # Outputs:
 #   - Figure1G_reference_survival_assoc.pdf
@@ -27,6 +26,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
   library(cowplot)
+  library(readxl)
   library(RColorBrewer)
 })
 
@@ -148,5 +148,5 @@ aligned <- cowplot::align_plots(
 )
 
 pdf("Figure1G_reference_survival_assoc.pdf", width = 6, height = 7)
-cowplot::plot_grid(aligned[[1]], aligned[[2]], ncol = 1, rel_heights = c(4, 1.5))
+print(cowplot::plot_grid(aligned[[1]], aligned[[2]], ncol = 1, rel_heights = c(4, 1.5)))
 dev.off()

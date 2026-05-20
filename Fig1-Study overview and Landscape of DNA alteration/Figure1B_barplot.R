@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# File: figure1b_subtype_barplot.R
+# File: Figure1B_barplot.R
 # ==============================================================================
 #
 # Title:
@@ -14,11 +14,11 @@
 #
 # Description:
 #   Generates a stacked bar plot showing tumor subtype proportions in pediatric
-#   (PED) and adolescent/young adult (AYA) tumors using the clinical data file
-#   directly from the data directory. 
+#   (PED) and adolescent/young adult (AYA) tumors using the public clinical
+#   table in STable1.
 #
 # Input file:
-#   - data/cDisc_clinical_data_04032026.tsv
+#   - data/STable1.xlsx, sheet ClinicalTable
 #
 # Output file:
 #   - Figure1B_barplot_subtype.pdf
@@ -28,7 +28,7 @@
 suppressPackageStartupMessages({
   library(dplyr)
   library(tidyr)
-  library(readr)
+  library(readxl)
   library(ggplot2)
   library(scales)
 })
@@ -37,20 +37,24 @@ suppressPackageStartupMessages({
 # Input / output
 # ------------------------------------------------------------------------------
 
-clinical_file <- "../data/cDisc_clinical_data_04032026.tsv"
+clinical_file <- "../data/STable1.xlsx"
+clinical_sheet <- "ClinicalTable"
 output_file <- "Figure1B_barplot_subtype.pdf"
 
 if (!file.exists(clinical_file)) {
-  stop("Clinical file not found: ", clinical_file)
+  stop("Clinical workbook not found: ", clinical_file)
+}
+if (!clinical_sheet %in% readxl::excel_sheets(clinical_file)) {
+  stop("Clinical sheet not found in STable1.xlsx: ", clinical_sheet)
 }
 
 # ------------------------------------------------------------------------------
 # Read clinical data
 # ------------------------------------------------------------------------------
 
-clinical_table <- read_tsv(
+clinical_table <- readxl::read_excel(
   clinical_file,
-  show_col_types = FALSE
+  sheet = clinical_sheet
 ) %>%
   as.data.frame()
 

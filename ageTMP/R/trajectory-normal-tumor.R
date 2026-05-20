@@ -22,6 +22,12 @@ standardize_sex <- function(x) {
 }
 
 fit_loess_predict <- function(x, y, new_x, span = 1.5) {
+  if (length(span) != 1 || is.na(span) || !is.finite(span)) {
+    fit <- rep(NA_real_, length(new_x))
+    se <- rep(NA_real_, length(new_x))
+    return(list(fit = fit, se = se))
+  }
+
   ok <- !is.na(x) & !is.na(y)
   x <- x[ok]
   y <- y[ok]
@@ -139,14 +145,39 @@ adjust_normal_feature <- function(values, metadata, covariates) {
 #' such as pH, PMI, and ethnicity, then normal and tumor age trajectories are
 #' fit separately by sex.
 #'
-#' Manuscript reproducibility details are intentionally preserved. The loess
-#' fits use base [stats::loess()] defaults, matching the original trajectory
-#' scripts. For normal/reference data, missing pH should be imputed before
-#' sex-stratified fitting, `Ethnicity == "H"` is combined with `"C"`, and
-#' `"C"` is used as the reference level when the covariate model includes
-#' ethnicity. The Figure 2C reproduction script also filters tumor fitting
-#' samples to `age <= 80`, evaluates each sex-stratified curve at all tumor
-#' ages `<= 50`, and uses manuscript-specific adaptive spans.
+#' @details
+#' Several defaults and preprocessing steps intentionally preserve the original
+#' manuscript trajectory workflow rather than imposing a more general modeling
+#' API.
+#'
+#' - Loess fits use base [stats::loess()] defaults, matching the original
+#'   trajectory scripts. In particular, the package does not use
+#'   `loess.control(surface = "direct")` for manuscript reproduction.
+#' - Normal/reference values are adjusted with `score ~ pH + PMI + Ethnicity`
+#'   when those covariates are supplied. Missing normal pH is imputed before
+#'   sex-stratified fitting; ethnicity label `H` is combined with `C`; and `C`
+#'   is used as the reference level.
+#' - Tumor matrices should be centered/scaled using the manuscript centering
+#'   range, e.g. `center_age_range = c(0, 50)` for the Figure 2C protein
+#'   trajectories.
+#' - The published Figure 2C protein workflow fit tumor curves using samples
+#'   with `age <= 80` (`age.cut2 = 80` in `proteo_tadj50.R`). This filtering is
+#'   performed by the reproduction script before calling this function.
+#' - For Figure 2C reproduction, each sex-stratified model is predicted on the
+#'   common set of all tumor sample ages `<= 50`, not only on ages from the sex
+#'   being modeled. Supply those ages through `prediction_ages`.
+#' - Manuscript panels used feature/sex/tissue-specific adaptive loess spans.
+#'   Supply them as a data frame with columns `feature`, `sex`, `tissue`, and
+#'   `span`, or set `adaptive_span = TRUE` to recompute them from the supplied
+#'   public source data.
+#' - Confidence intervals are returned as `fit +/- qnorm(0.975) * se` when
+#'   `ci_level = 0.95`.
+#'
+#' These details were validated against the original `tn_df.RData` and
+#' `protein_tadj50_list.RData` objects for the Figure 2C proteins `CNTN1`,
+#' `MAPT`, and `L1CAM`; with the manuscript settings, generated `fit`,
+#' `ci_lower`, and `ci_upper` values match the legacy `tn.df$value`, `tn.df$low`,
+#' and `tn.df$hi` to floating-point tolerance.
 #'
 #' @param tumor_mat Tumor feature-by-sample matrix.
 #' @param tumor_metadata Tumor sample metadata.
@@ -164,12 +195,22 @@ adjust_normal_feature <- function(values, metadata, covariates) {
 #' @param span Loess span for trajectory fitting. This can be a single numeric
 #'   value used for all fits, a list with `Normal` and `Tumor` entries, or a
 #'   data frame with columns `feature`, `sex`, `tissue`, and `span`.
+#' @param adaptive_span Recompute feature/sex/tissue-specific spans by GCV.
+#'   This mirrors the adaptive protein trajectory run used for Figure 2F/G.
+#' @param tumor_min_span Minimum span for adaptive tumor trajectories.
+#' @param tumor_max_span Maximum span for adaptive tumor trajectories.
+#' @param normal_min_span Minimum span for adaptive normal trajectories.
+#' @param normal_max_span Maximum span for adaptive normal trajectories.
+#' @param span_step Span grid step for adaptive selection.
 #' @param prediction_ages Optional numeric vector of ages where trajectories
 #'   should be predicted. If `NULL`, trajectories are predicted at the tumor
 #'   sample ages for the sex being modeled. For manuscript Figure 2C
 #'   reproduction, pass all tumor sample ages `<= 50` so each sex-stratified
 #'   curve is evaluated on the same age support used by the original `tn.df`
 #'   object.
+#' @param prediction_sample_ids Optional sample IDs corresponding to
+#'   `prediction_ages`. Supplying these preserves manuscript heatmap columns
+#'   when multiple samples share the same age.
 #' @param ci_level Confidence level for fitted trajectories.
 #'
 #' @return A data frame with fitted values, standard errors, and confidence
@@ -191,7 +232,14 @@ ageTMP_compare_normal_tumor_trajectory <- function(
   normal_covariates = c("pH", "PMI", "Ethnicity"),
   center_age_range = c(0, 26),
   span = 1.5,
+  adaptive_span = FALSE,
+  tumor_min_span = 0.5,
+  tumor_max_span = 3,
+  normal_min_span = 1,
+  normal_max_span = 3,
+  span_step = 0.1,
   prediction_ages = NULL,
+  prediction_sample_ids = NULL,
   ci_level = 0.95
 ) {
   tumor_mat <- as.matrix(tumor_mat)
@@ -245,20 +293,23 @@ ageTMP_compare_normal_tumor_trajectory <- function(
 
       tumor_age <- tumor_metadata[[tumor_age_col]][tumor_sex_idx]
       tumor_values <- as.numeric(tumor_scaled[feature, tumor_sex_idx])
-      tumor_span <- resolve_trajectory_span(span, feature, sex, "Tumor")
-      normal_span <- resolve_trajectory_span(span, feature, sex, "Normal")
 
       if (is.null(prediction_ages)) {
         pred_age <- tumor_age
         pred_sample_id <- tumor_metadata[[tumor_sample_col]][tumor_sex_idx]
         pred_observed <- tumor_values
       } else {
-        pred_age <- sort(unique(as.numeric(prediction_ages)))
-        pred_sample_id <- rep(NA_character_, length(pred_age))
+        pred_age <- as.numeric(prediction_ages)
+        if (is.null(prediction_sample_ids)) {
+          pred_sample_id <- rep(NA_character_, length(pred_age))
+        } else {
+          if (length(prediction_sample_ids) != length(pred_age)) {
+            stop("`prediction_sample_ids` must have the same length as `prediction_ages`.", call. = FALSE)
+          }
+          pred_sample_id <- ageTMP_normalize_sample_ids(prediction_sample_ids)
+        }
         pred_observed <- rep(NA_real_, length(pred_age))
       }
-
-      tumor_pred <- fit_loess_predict(tumor_age, tumor_values, pred_age, span = tumor_span)
 
       normal_values <- adjust_normal_feature(
         as.numeric(normal_mat[feature, normal_sex_idx]),
@@ -272,6 +323,28 @@ ageTMP_compare_normal_tumor_trajectory <- function(
       if (!is.na(normal_sd) && normal_sd > 0) {
         normal_values <- normal_values / normal_sd
       }
+
+      if (adaptive_span) {
+        tumor_span <- select_adaptive_span(
+          tumor_age,
+          tumor_values,
+          min_span = tumor_min_span,
+          max_span = tumor_max_span,
+          span_step = span_step
+        )
+        normal_span <- select_adaptive_span(
+          normal_age,
+          normal_values,
+          min_span = normal_min_span,
+          max_span = normal_max_span,
+          span_step = span_step
+        )
+      } else {
+        tumor_span <- resolve_trajectory_span(span, feature, sex, "Tumor")
+        normal_span <- resolve_trajectory_span(span, feature, sex, "Normal")
+      }
+
+      tumor_pred <- fit_loess_predict(tumor_age, tumor_values, pred_age, span = tumor_span)
       normal_pred <- fit_loess_predict(normal_age, normal_values, pred_age, span = normal_span)
 
       base <- data.frame(

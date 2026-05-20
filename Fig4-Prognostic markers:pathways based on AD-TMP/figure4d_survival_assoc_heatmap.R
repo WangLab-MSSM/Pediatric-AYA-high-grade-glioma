@@ -1,6 +1,6 @@
 ################################################################################
 # Figure: Figure 4D
-# Script name: figure4_survival_assoc_heatmap_protein.R
+# Script name: Figure4D_survival_assoc_heatmap.R
 # Purpose: Generate the Figure 4D protein survival-association heatmap
 #          from supplementary table inputs.
 #
