@@ -197,6 +197,7 @@ dev.off()
 # %%%%%%%%%%%%%%%%%%
 
 ######## Figure 5C ###########
+load("selected_kinase.RData")
 xia<- read.csv("data/xiaoyu_corr.csv")
 sig.corr<- xia[xia$eFDR_cancer < 0.1, c(1:2,5)]
 
