@@ -32,8 +32,10 @@ if (length(missing_packages) > 0) {
 
 data_dir <- "../data"
 genes <- c("CNTN1", "MAPT", "L1CAM")
-output_pdf <- "Figure2C_protein_curveplot.pdf"
-output_png <- "Figure2C_protein_curveplot.png"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_pdf <- file.path(output_dir, "Figure2C_protein_curveplot.pdf")
+output_png <- file.path(output_dir, "Figure2C_protein_curveplot.png")
 
 # Figure 2C used the adaptive-span protein_tadj50 run in the original code.
 # These are the feature/sex/tissue-specific spans stored in

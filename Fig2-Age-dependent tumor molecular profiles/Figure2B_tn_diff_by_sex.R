@@ -146,8 +146,11 @@ p <- ggplot(
 
 p
 
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 ggsave(
-  filename = "Figure2B_barplot_tn_cluster_pathway_all.pdf",
+  filename = file.path(output_dir, "Figure2B_barplot_tn_cluster_pathway_all.pdf"),
   plot = p,
   width = 10,
   height = 7,

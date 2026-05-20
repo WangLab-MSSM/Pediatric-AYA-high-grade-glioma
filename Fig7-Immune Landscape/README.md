@@ -6,6 +6,8 @@ Complete the shared setup steps in the root `README.md` before running these scr
 cd "Fig7-Immune Landscape"
 ```
 
+Assembled Figure 7 PDFs and PNG previews are stored in `output/`.
+
 ## Figure Panels
 
 | Analysis/Figures/Tables | Script | Output file(s) | Section in the manuscript | Simplified legend |

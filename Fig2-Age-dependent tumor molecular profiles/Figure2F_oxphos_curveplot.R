@@ -26,8 +26,10 @@ if (length(missing_packages) > 0) {
 }
 
 data_dir <- "../data"
-output_pdf <- "Figure2F_oxphos_from_ageTMP.pdf"
-output_png <- "Figure2F_oxphos_from_ageTMP.png"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_pdf <- file.path(output_dir, "Figure2F_oxphos_from_ageTMP.pdf")
+output_png <- file.path(output_dir, "Figure2F_oxphos_from_ageTMP.png")
 apply_sd_filter <- FALSE
 sd_min <- 0.15
 

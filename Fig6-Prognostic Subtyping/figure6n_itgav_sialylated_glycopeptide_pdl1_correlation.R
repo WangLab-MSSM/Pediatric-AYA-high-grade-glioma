@@ -45,7 +45,9 @@ clinical_sheet <- "ClinicalTable"
 input_proteome <- file.path("../data", "cDisc_proteome_imputed_data_09152023.tsv")
 input_glyco <- file.path("../data", "Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv")
 
-output_pdf <- "Figure6N_itgav_sialylated_glycopeptide_pdl1_correlation.pdf"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_pdf <- file.path(output_dir, "Figure6N_itgav_sialylated_glycopeptide_pdl1_correlation.pdf")
 
 stopifnot(file.exists(input_stable6))
 stopifnot(file.exists(input_clinical))

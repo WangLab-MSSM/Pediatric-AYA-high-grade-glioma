@@ -247,7 +247,9 @@ save_corrplot <- function(tab,
                           height = 6) {
   stars <- make_stars(fdr_mat)
   
-  pdf(output_pdf, width = width, height = height, useDingbats = FALSE)
+  output_dir <- "output"
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  pdf(file.path(output_dir, output_pdf), width = width, height = height, useDingbats = FALSE)
   
  corrplot(
   tab,

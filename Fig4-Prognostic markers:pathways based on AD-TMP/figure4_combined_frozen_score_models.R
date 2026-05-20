@@ -44,7 +44,8 @@ set.seed(123)
 # Parameters
 # ------------------------------------------------------------------------------
 
-output_dir <- "."
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 analysis_ready_file <- file.path(
   output_dir,

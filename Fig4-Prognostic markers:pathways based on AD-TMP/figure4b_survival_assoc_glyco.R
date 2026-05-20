@@ -36,7 +36,9 @@ suppressPackageStartupMessages({
 
 input_file <- file.path("../data", "STable4.xlsx")
 sheet_name <- "SA-Glyco-Disc"
-output_file <- "Figure4B_survival_assoc_glyco.pdf"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_file <- file.path(output_dir, "Figure4B_survival_assoc_glyco.pdf")
 fdr_threshold <- 0.10
 signed_fdr_threshold <- -log10(fdr_threshold)
 

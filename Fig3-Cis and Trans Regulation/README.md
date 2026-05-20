@@ -6,6 +6,8 @@ Complete the shared setup steps in the root `README.md` before running these scr
 cd "Fig3-Cis and Trans Regulation"
 ```
 
+Generated PDFs and PNG previews are written to `output/`.
+
 ## Figure Panels
 
 | Analysis/Figures/Tables | Script | Output file(s) | Section in the manuscript | Simplified legend |

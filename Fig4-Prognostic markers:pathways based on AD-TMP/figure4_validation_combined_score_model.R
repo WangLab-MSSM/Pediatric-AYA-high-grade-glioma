@@ -50,7 +50,8 @@ set.seed(123)
 
 data_type <- "Validation"
 
-output_dir <- "."
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 sex_colors <- c(
   Male = "#0707CF",

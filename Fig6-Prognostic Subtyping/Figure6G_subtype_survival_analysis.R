@@ -516,11 +516,13 @@ print_survival_result <- function(res, name = "model") {
 ## save helper
 ## --------------------------------------------
 save_survival_result <- function(res, prefix) {
+  output_dir <- "output"
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   
   if (!is.null(res$cox_results_CintG)) {
     write.table(
       res$cox_results_CintG,
-      paste0("TableS6_", prefix, "_cox_results_CintG.tsv"),
+      file.path(output_dir, paste0("TableS6_", prefix, "_cox_results_CintG.tsv")),
       sep = "\t",
       row.names = FALSE,
       quote = FALSE
@@ -528,7 +530,7 @@ save_survival_result <- function(res, prefix) {
   }
   
   if (!is.null(res$splotCintAG_AG)) {
-    pdf(paste0("Figure6G_", prefix, "_interaction_survival.pdf"), width = 6, height = 7.5)
+    pdf(file.path(output_dir, paste0("Figure6G_", prefix, "_interaction_survival.pdf")), width = 6, height = 7.5)
     print(res$splotCintAG_AG, newpage = FALSE)
     dev.off()
   }

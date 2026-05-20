@@ -20,14 +20,17 @@ library(ggpubr)
 library(survival)
 library(survminer)
 
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
 save_heatmap_pdf <- function(ht, file, width = 6, height = 6) {
-  pdf(file, width = width, height = height, useDingbats = TRUE)
+  pdf(file.path(output_dir, file), width = width, height = height, useDingbats = TRUE)
   draw(ht)
   dev.off()
 }
 
 save_ggplot_pdf <- function(plot, file, width = 6, height = 5) {
-  pdf(file, width = width, height = height, useDingbats = TRUE)
+  pdf(file.path(output_dir, file), width = width, height = height, useDingbats = TRUE)
   print(plot)
   dev.off()
 }
@@ -81,7 +84,7 @@ draw_kinase_correlation_heatmap <- function(cor_mat, fdr_mat, file) {
     )
   )
 
-  pdf(file, width = 4.3, height = 6.2, useDingbats = TRUE)
+  pdf(file.path(output_dir, file), width = 4.3, height = 6.2, useDingbats = TRUE)
   draw(
     ht,
     heatmap_legend_side = "top",
@@ -144,7 +147,7 @@ load("data/consensus_DAG.RData")
 library(igraph)
 obj<- graph_from_adjacency_matrix(as.matrix(dag), mode = "directed", weighted = TRUE)
 
-pdf("Figure5A_causal_kinase_network.pdf",width = 20, height = 20, useDingbats=T)
+pdf(file.path(output_dir, "Figure5A_causal_kinase_network.pdf"),width = 20, height = 20, useDingbats=T)
 plot.igraph(obj,vertex.size=10, edge.length=10, edge.color="black", vertex.label.cex=1.5,vertex.color=V(obj)$color,layout=layout.fruchterman.reingold(obj, niter=10000))
 dev.off()
 
@@ -156,7 +159,7 @@ mod1<- dag[rownames(dag) %in% mod1.kinase, colnames(dag) %in% mod1.kinase]
 obj<- graph_from_adjacency_matrix(as.matrix(mod1), mode = "directed", weighted = TRUE)
 
 # %%%%%% 5B %%%%%%%%
-pdf("Figure5B_module_I_causal_kinase_network.pdf",width = 20, height = 20, useDingbats=T)
+pdf(file.path(output_dir, "Figure5B_module_I_causal_kinase_network.pdf"),width = 20, height = 20, useDingbats=T)
 plot.igraph(obj,vertex.size=10, edge.length=10, edge.color="black", vertex.label.cex=1.5,vertex.color=V(obj)$color,layout=layout.fruchterman.reingold(obj, niter=10000))
 dev.off()
 # %%%%%%%%%%%%%%%%%%
@@ -166,7 +169,7 @@ mod2<- dag[rownames(dag) %in% mod2.kinase, colnames(dag) %in% mod2.kinase]
 obj<- graph_from_adjacency_matrix(as.matrix(mod2), mode = "directed", weighted = TRUE)
 
 # %%%%%%%% S5B %%%%%%%%%%
-pdf("FigureS5B_module_II_causal_kinase_network.pdf",width = 20, height = 20, useDingbats=T)
+pdf(file.path(output_dir, "FigureS5B_module_II_causal_kinase_network.pdf"),width = 20, height = 20, useDingbats=T)
 plot.igraph(obj,vertex.size=10, edge.length=10, edge.color="black", vertex.label.cex=1.5,vertex.color=V(obj)$color,layout=layout.fruchterman.reingold(obj, niter=10000))
 dev.off()
 # %%%%%%%%%%%%%%%%%%
@@ -178,7 +181,7 @@ mod1<- dag[rownames(dag) %in% mod1.kinase, colnames(dag) %in% mod1.kinase]
 obj<- graph_from_adjacency_matrix(as.matrix(mod1), mode = "directed", weighted = TRUE)
 
 # %%%%%% S5C %%%%%%%%
-pdf("FigureS5C_male_module_I_causal_kinase_network.pdf",width = 20, height = 20, useDingbats=T)
+pdf(file.path(output_dir, "FigureS5C_male_module_I_causal_kinase_network.pdf"),width = 20, height = 20, useDingbats=T)
 plot.igraph(obj,vertex.size=10, edge.length=10, edge.color="black", vertex.label.cex=1.5,vertex.color=V(obj)$color,layout=layout.fruchterman.reingold(obj, niter=10000))
 dev.off()
 # %%%%%%%%%%%%%%%%%%
@@ -188,7 +191,7 @@ mod2<- dag[rownames(dag) %in% mod2.kinase, colnames(dag) %in% mod2.kinase]
 obj<- graph_from_adjacency_matrix(as.matrix(mod2), mode = "directed", weighted = TRUE)
 
 # %%%%%%%% S5D %%%%%%%%%%
-pdf("FigureS5D_male_module_II_causal_kinase_network.pdf",width = 20, height = 20, useDingbats=T)
+pdf(file.path(output_dir, "FigureS5D_male_module_II_causal_kinase_network.pdf"),width = 20, height = 20, useDingbats=T)
 plot.igraph(obj,vertex.size=10, edge.length=10, edge.color="black", vertex.label.cex=1.5,vertex.color=V(obj)$color,layout=layout.fruchterman.reingold(obj, niter=10000))
 dev.off()
 # %%%%%%%%%%%%%%%%%%
@@ -625,7 +628,7 @@ row.names(new.data)=c("high protein","low protein")
 
 myfit <- survfit(cox.fit.new, newdata = new.data[,c("cl", "mut1", "tum", "age.group","gender")])
 
-pdf(file = "FigureS5G_CDK8_survival_curve.pdf", width = 6, height=6, useDingbats=T)
+pdf(file = file.path(output_dir, "FigureS5G_CDK8_survival_curve.pdf"), width = 6, height=6, useDingbats=T)
 ggsurvplot(myfit, data = new.data, size=.5,
            title="KM Curve for CDK8",
            conf.int = FALSE,

@@ -39,7 +39,9 @@ suppressPackageStartupMessages({
 
 clinical_file <- "../data/STable1.xlsx"
 clinical_sheet <- "ClinicalTable"
-output_file <- "Figure1B_barplot_subtype.pdf"
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_file <- file.path(output_dir, "Figure1B_barplot_subtype.pdf")
 
 if (!file.exists(clinical_file)) {
   stop("Clinical workbook not found: ", clinical_file)

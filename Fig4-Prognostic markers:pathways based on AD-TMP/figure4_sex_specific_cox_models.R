@@ -80,7 +80,8 @@ n_boot <- 10000
 max_day <- 2000
 data_type <- "cDiscovery"
 
-output_dir <- "."
+output_dir <- "output"
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 data_dir <- "../data"
 
 sex_colors <- c(
