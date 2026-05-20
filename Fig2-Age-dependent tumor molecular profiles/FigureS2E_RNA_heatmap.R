@@ -14,8 +14,6 @@
 #   - SexBias_Pathway_RNA
 #
 # Output:
-#   - dist_pathway_rna_tn.tsv
-#   - sex_bias_pathway_rna.tsv
 #   - FigureS2E_RNA_Pathway_Heatmaps.pdf
 ###############################################################
 
@@ -23,6 +21,16 @@ library(readxl)
 library(ComplexHeatmap)
 library(circlize)
 library(grid)
+library(RColorBrewer)
+
+get_green <- function(n) {
+  grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "Greens")[-(1:2)])(n)
+}
+
+sex.col <- c(
+  Male = "#0707CF",
+  Female = "#CC0303"
+)
 
 ## Selected pathways displayed in the heatmaps
 mypathways <- c(
@@ -75,23 +83,6 @@ sex_bias.data <- sex_bias.data[, c(
   "SexBias_ADO_Tumor_SignedLog10FDR",
   "SexBias_YA_Tumor_SignedLog10FDR"
 )]
-
-## Export simplified tables
-write.table(
-  dist.data,
-  file = "dist_pathway_rna_tn.tsv",
-  sep = "\t",
-  row.names = FALSE,
-  quote = FALSE
-)
-
-write.table(
-  sex_bias.data,
-  file = "sex_bias_pathway_rna.tsv",
-  sep = "\t",
-  row.names = FALSE,
-  quote = FALSE
-)
 
 ## Tumor-normal pathway difference heatmap
 dist.data.plot <- dist.data[

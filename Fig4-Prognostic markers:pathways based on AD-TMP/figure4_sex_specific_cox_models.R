@@ -2,7 +2,7 @@
 
 # ============================================================
 # Figure 4 / Figure S4 | Sex-Specific Penalized Cox Models
-# File: figure4_sex_specific_cox_models.R
+# File: Figure4_sex_specific_cox_models.R
 #
 # Description:
 #   Performs sex-stratified penalized Cox regression using glmnet
@@ -32,13 +32,14 @@
 #     - STable4: Multivariable hazard ratio tables (male and female models)
 #
 # Inputs:
-#   - data/pediatric_aya_hgg_study_data.rds
-#   - data/Stable1.xlsx
-#   - data/Stable4.xlsx
+#   - ../data/STable1.xlsx, sheet ClinicalTable
+#   - ../data/cDisc_mutation_10192023.tsv
+#   - ../data/cDisc_proteome_imputed_data_09152023.tsv
+#   - ../data/STable1.xlsx
+#   - ../data/STable4.xlsx
 #
 # Outputs:
-#   Written to:
-#     - cox_model_outputs/
+#   Written to the current figure folder.
 #
 # Author: Nicole Tignor
 # Affiliation: Icahn School of Medicine at Mount Sinai
@@ -58,6 +59,16 @@ suppressPackageStartupMessages({
   library(scales)
 })
 
+if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
+  pkgload::load_all("../ageTMP", quiet = TRUE)
+} else if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("ageTMP")) {
+  pkgload::load_all("ageTMP", quiet = TRUE)
+} else if (requireNamespace("ageTMP", quietly = TRUE)) {
+  library(ageTMP)
+} else {
+  stop("Install ageTMP or run this script from the repository root containing ageTMP/.", call. = FALSE)
+}
+
 set.seed(123)
 
 # ------------------------------------------------------------------------------
@@ -69,8 +80,8 @@ n_boot <- 10000
 max_day <- 2000
 data_type <- "cDiscovery"
 
-output_dir <- "cox_model_outputs"
-dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_dir <- "."
+data_dir <- "../data"
 
 sex_colors <- c(
   Male = "#0707CF",
@@ -98,11 +109,16 @@ get_coef_plot_height <- function(n_predictors, min_height = 2.2, max_height = 8)
 }
 
 make_survival_data <- function(clinical, max_day = 2000) {
-  os_status <- ifelse(clinical$cDisc_os > max_day, 0, clinical$cDisc_os_status)
-  pfs_status <- ifelse(clinical$cDisc_pfs > max_day, 0, clinical$cDisc_pfs_status)
+  os_time <- as.numeric(clinical$cDisc_os)
+  pfs_time <- as.numeric(clinical$cDisc_pfs)
+  os_event <- as.numeric(clinical$cDisc_os_status)
+  pfs_event <- as.numeric(clinical$cDisc_pfs_status)
+
+  os_status <- ifelse(os_time > max_day, 0, os_event)
+  pfs_status <- ifelse(pfs_time > max_day, 0, pfs_event)
   
-  os_days <- ifelse(clinical$cDisc_os > max_day, max_day, clinical$cDisc_os)
-  pfs_days <- ifelse(clinical$cDisc_pfs > max_day, max_day, clinical$cDisc_pfs)
+  os_days <- ifelse(os_time > max_day, max_day, os_time)
+  pfs_days <- ifelse(pfs_time > max_day, max_day, pfs_time)
   
   data.frame(
     id = clinical$id,
@@ -223,22 +239,27 @@ select_sex_signature <- function(stable4, sex_label) {
 # Load data
 # ------------------------------------------------------------------------------
 
-hope_data <- readRDS("../data/pediatric_aya_hgg_study_data.rds")
+clinical <- ageTMP::ageTMP_load_clinical(data_dir)
+clinical$id <- ageTMP::ageTMP_normalize_sample_ids(clinical$id)
+if (!"sample_id" %in% colnames(clinical)) {
+  clinical$sample_id <- clinical$id
+}
+clinical$sample_id <- ageTMP::ageTMP_normalize_sample_ids(clinical$sample_id)
 
 validation_clinical_raw <- read_xlsx(
-  "../data/Stable1.xlsx",
+  file.path(data_dir, "STable1.xlsx"),
   sheet = 5,
   na = "NA"
 )
 
 validation_protein_raw <- read_xlsx(
-  "../data/Stable1.xlsx",
+  file.path(data_dir, "STable1.xlsx"),
   sheet = 6,
   na = "NA"
 )
 
 stable4_sheet6 <- read_xlsx(
-  "../data/Stable4.xlsx",
+  file.path(data_dir, "STable4.xlsx"),
   sheet = 6,
   na = "NA"
 )
@@ -297,7 +318,6 @@ validation_genes <- intersect(both_candidate_genes, rownames(validation_protein)
 # Prepare cDiscovery survival data
 # ------------------------------------------------------------------------------
 
-clinical <- hope_data$clinical
 rownames(clinical) <- clinical$id
 
 data0 <- make_survival_data(clinical, max_day = max_day)
@@ -324,7 +344,13 @@ data0 <- data0 %>%
 # Add mutation covariates
 # ------------------------------------------------------------------------------
 
-mutation_data <- hope_data$mutation$data
+mutation_raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "mutation")
+mutation_split <- ageTMP::ageTMP_split_annotation_matrix(
+  mutation_raw,
+  annotation_cols = 1,
+  row_id = "ApprovedGeneSymbol"
+)
+mutation_data <- mutation_split$matrix
 rownames(mutation_data) <- gsub("-", "", rownames(mutation_data))
 mutation_data[is.na(mutation_data)] <- 0
 
@@ -365,8 +391,14 @@ stopifnot(all(rownames(mutation_sub) == data0$id))
 # Add protein covariates
 # ------------------------------------------------------------------------------
 
-protein_data <- hope_data$protein$data
-protein_anno <- hope_data$protein$anno
+protein_raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "protein")
+protein_split <- ageTMP::ageTMP_split_annotation_matrix(
+  protein_raw,
+  annotation_cols = 1:4,
+  row_id = "ApprovedGeneSymbol"
+)
+protein_data <- protein_split$matrix
+protein_anno <- protein_split$annotation
 
 protein_by_gene <- collapse_protein_to_gene(protein_data, protein_anno)
 
@@ -376,9 +408,18 @@ protein_by_gene <- protein_by_gene[
   drop = FALSE
 ]
 
-colnames(protein_by_gene) <- clinical$id[
-  match(colnames(protein_by_gene), clinical$sample_id)
-]
+protein_sample_idx <- match(
+  ageTMP::ageTMP_normalize_sample_ids(colnames(protein_by_gene)),
+  clinical$id
+)
+if (any(is.na(protein_sample_idx))) {
+  protein_sample_idx[is.na(protein_sample_idx)] <- match(
+    ageTMP::ageTMP_normalize_sample_ids(colnames(protein_by_gene)[is.na(protein_sample_idx)]),
+    clinical$sample_id
+  )
+}
+colnames(protein_by_gene) <- clinical$id[protein_sample_idx]
+protein_by_gene <- protein_by_gene[, !is.na(colnames(protein_by_gene)), drop = FALSE]
 
 protein_genes <- intersect(both_candidate_genes, rownames(protein_by_gene))
 
@@ -1059,10 +1100,10 @@ analysis_ready_data <- list(
 
 saveRDS(
   analysis_ready_data,
-  file = file.path(output_dir, "figure4_analysis_ready_data.rds")
+  file = file.path(output_dir, "Figure4_analysis_ready_data.rds")
 )
 
 message(
   "Saved downstream analysis-ready data to: ",
-  file.path(output_dir, "figure4_analysis_ready_data.rds")
+  file.path(output_dir, "Figure4_analysis_ready_data.rds")
 )

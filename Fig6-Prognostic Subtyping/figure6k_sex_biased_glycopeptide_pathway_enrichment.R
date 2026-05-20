@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# File: figure6k_sex_biased_glycopeptide_pathway_enrichment.R
+# File: Figure6K_sex_biased_glycopeptide_pathway_enrichment.R
 # ==============================================================================
 #
 # Title:
@@ -24,11 +24,11 @@
 #   associated with C2/M2-F2 tumor biology.
 #
 # Input:
-#   data/STable6.xlsx
+#   ../data/STable6.xlsx
 #     └── Sheet: C2-Specific-Sex-Bias-Pathway
 #
 # Output:
-#   figures/figure6k_glycopeptide_pathway_enrichment.pdf
+#   Figure6K_glycopeptide_pathway_enrichment.pdf
 #
 # Dependencies:
 #   ggplot2
@@ -48,7 +48,7 @@ suppressPackageStartupMessages({
 
 input_file <- file.path("../data", "STable6.xlsx")
 input_sheet <- "C2-Specific-Sex-Bias-Pathway"
-output_file <- "figure6k_glycopeptide_pathway_enrichment.pdf"
+output_file <- "Figure6K_glycopeptide_pathway_enrichment.pdf"
 
 # Curated pathway set used in the original Figure 6K plotting block. The order
 # below is the manuscript curation order; the plotted y-axis order follows the
@@ -156,10 +156,6 @@ figure6k <- ggplot(plot_data, aes(y = pathway.label, x = logsignfdr, fill = sex)
   theme_bw() +
   scale_fill_manual(values = sex_col) +
   ylab("")
-
-if (!dir.exists(dirname(output_file))) {
-  dir.create(dirname(output_file), recursive = TRUE)
-}
 
 ggsave(
   filename = output_file,

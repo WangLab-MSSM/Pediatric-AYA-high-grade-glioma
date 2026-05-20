@@ -7,7 +7,8 @@
 ## HOPE AYA HGG cohort.
 ##
 ## Data:
-##   study_data <- readRDS("data/pediatric_aya_hgg_study_data.rds")
+##   - ../data/STable1.xlsx, sheet ClinicalTable
+##   - ../data/cDisc_mutation_10192023.tsv
 ##
 ## Outputs:
 ##   - Cox proportional hazards models (AG, CAG, CintAG)
@@ -27,8 +28,6 @@ suppressPackageStartupMessages({
   library(colorspace)
 })
 
-#study_data <- readRDS("../data/pediatric_aya_hgg_study_data.rds")
-#clinical.data <- study_data$clinical
 clinical.data <- data.frame(
   read_xlsx(
     "../data/STable1.xlsx",

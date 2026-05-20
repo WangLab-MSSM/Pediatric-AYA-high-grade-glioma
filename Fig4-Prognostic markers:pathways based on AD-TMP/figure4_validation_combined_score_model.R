@@ -2,7 +2,7 @@
 
 # ============================================================
 # Figure 4 / Figure S4 | Validation of Male-Derived MORC2 and PHKG2 Prognostic Markers
-# File: figure4_validation_MORC2_PHKG2.R
+# File: Figure4_validation_combined_score_model.R
 #
 # Description:
 #   Performs validation survival analysis for MORC2 and PHKG2 in the
@@ -13,7 +13,7 @@
 #   prognostic markers.
 #
 #   The script:
-#     - Loads validation clinical and protein data from Stable1.xlsx
+#     - Loads validation clinical and protein data from STable1.xlsx
 #     - Prepares OS survival object
 #     - Adds clinical adjustment covariates
 #     - Tests MORC2 and PHKG2 as continuous markers
@@ -21,11 +21,10 @@
 #     - Outputs HR tables and survival PDFs
 #
 # Inputs:
-#   - data/Stable1.xlsx
+#   - ../data/STable1.xlsx
 #
 # Outputs:
-#   Written to:
-#     - cox_model_outputs/
+#   Written to the current figure folder.
 #
 # Author: Nicole Tignor
 # Affiliation: Icahn School of Medicine at Mount Sinai
@@ -51,8 +50,7 @@ set.seed(123)
 
 data_type <- "Validation"
 
-output_dir <- "cox_model_outputs"
-dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+output_dir <- "."
 
 sex_colors <- c(
   Male = "#0707CF",
@@ -108,13 +106,13 @@ save_pdf <- function(plot_object, filename, width, height) {
 # ------------------------------------------------------------------------------
 
 vclinical <- readxl::read_xlsx(
-  "../data/Stable1.xlsx",
+  "../data/STable1.xlsx",
   sheet = 5,
   na = "NA"
 )
 
 vprotein <- readxl::read_xlsx(
-  "../data/Stable1.xlsx",
+  "../data/STable1.xlsx",
   sheet = 6,
   na = "NA"
 )

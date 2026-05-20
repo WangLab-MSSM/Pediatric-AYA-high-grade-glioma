@@ -9,10 +9,21 @@
 ##   analysis-facing names (e.g., age, Gender) for plotting
 ##   clarity. Original source columns are retained in the
 ##   clinical table.
-## - Tumor protein data are taken from the study data object.
-## - Normal reference proteome data are taken from the reference
-##   data object.
+## - Tumor protein data are read directly from the public protein
+##   matrix in ../data.
+## - Normal reference proteome data are loaded from the ageTMP
+##   package reference dataset.
 ## ============================================================
+
+if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
+  pkgload::load_all("../ageTMP", quiet = TRUE)
+} else if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("ageTMP")) {
+  pkgload::load_all("ageTMP", quiet = TRUE)
+} else if (requireNamespace("ageTMP", quietly = TRUE)) {
+  library(ageTMP)
+} else {
+  stop("Install ageTMP or run this script from the repository root containing ageTMP/.", call. = FALSE)
+}
 
 library(ggplot2)
 library(ggpubr)
@@ -42,19 +53,28 @@ mean_collapse_by_gene <- function(data_mat, gene_vec) {
 ## Load data
 ## ------------------------------------------------------------
 
-study.data <- readRDS("../data/pediatric_aya_hgg_study_data.rds")
-external.data <- readRDS("../data/pediatric_aya_hgg_external_data.rds")
+data_dir <- "../data"
 
-clinical.data <- study.data$clinical
+clinical.data <- ageTMP::ageTMP_load_clinical(data_dir)
+clinical.data$id <- ageTMP::ageTMP_normalize_sample_ids(clinical.data$id)
+if ("sample_id" %in% colnames(clinical.data)) {
+  clinical.data$sample_id <- ageTMP::ageTMP_normalize_sample_ids(clinical.data$sample_id)
+}
 
+protein.raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "protein")
+protein.split <- ageTMP::ageTMP_split_annotation_matrix(
+  protein.raw,
+  annotation_cols = 1:4,
+  row_id = "ApprovedGeneSymbol"
+)
+tumor.protein.data <- mean_collapse_by_gene(
+  protein.split$matrix,
+  protein.split$annotation$ApprovedGeneSymbol
+)
 
-
-tumor.protein.data <- mean_collapse_by_gene(study.data$protein$data,
-                                            study.data$protein$anno$ApprovedGeneSymbol)
-
-
-normal.protein.data <- external.data$normal_brain_reference$breen.prot
-normal.protein.meta <- external.data$normal_brain_reference$breen.prot.meta
+normal.reference <- ageTMP::ageTMP_load_normal_reference()
+normal.protein.data <- normal.reference$protein$matrix
+normal.protein.meta <- normal.reference$protein$sample_metadata
 
 set.seed(123)
 
@@ -202,5 +222,5 @@ plots <- lapply(mygenes, get_tn_plot)
 ## ------------------------------------------------------------
 
 pdf("Figure2D_protein_tn.pdf", height = 3, width = 3 * length(mygenes))
-ggpubr::ggarrange(plotlist = plots, common.legend = TRUE, nrow = 1)
+print(ggpubr::ggarrange(plotlist = plots, common.legend = TRUE, nrow = 1))
 dev.off()

@@ -37,12 +37,22 @@ library(readxl)
 library(ComplexHeatmap)
 library(circlize)
 library(grid)
+library(RColorBrewer)
+
+get_green <- function(n) {
+  grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "Greens")[-(1:2)])(n)
+}
 
 ## -----------------------------------------------------------
 ## Analysis settings
 ## -----------------------------------------------------------
 
 multi <- "Protein TMT"
+
+sex.col <- c(
+  Male = "#0707CF",
+  Female = "#CC0303"
+)
 
 ## Selected pathways displayed in the heatmaps
 mypathways <- c(
@@ -101,26 +111,6 @@ sex_bias.data <- sex_bias.data[, c(
   "SexBias_ADO_Tumor_SignedLog10FDR",
   "SexBias_YA_Tumor_SignedLog10FDR"
 )]
-
-## -----------------------------------------------------------
-## Export simplified pathway result tables
-## -----------------------------------------------------------
-
-write.table(
-  dist.data,
-  file = paste0("dist_pathway_", multi, "_tn.tsv"),
-  sep = "\t",
-  row.names = FALSE,
-  quote = FALSE
-)
-
-write.table(
-  sex_bias.data,
-  file = paste0("sex_bias_pathway_", multi, "_tn.tsv"),
-  sep = "\t",
-  row.names = FALSE,
-  quote = FALSE
-)
 
 ## -----------------------------------------------------------
 ## Tumor-normal pathway difference heatmap

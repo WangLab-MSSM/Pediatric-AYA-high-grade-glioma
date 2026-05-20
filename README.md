@@ -9,8 +9,7 @@ This repository contains code used to generate all figures and tables for the HO
 1. Download supplementary tables from the journal website  
 2. Download raw data from the PDC  
 3. (Optional) Install the `ageTMP` package for trajectory/CPSA analyses  
-4. (Optional) Build the study data object for original convenience scripts  
-5. Follow the README for the figure of interest  
+4. Follow the README for the figure of interest  
 
 ---
 
@@ -25,7 +24,7 @@ Each folder corresponds to a figure in the manuscript and contains the scripts r
 | Figure 1 | `Fig1-Study overview and Landscape of DNA alteration` |
 | Figure 2 | `Fig2-Age-dependent tumor molecular profiles` |
 | Figure 3 | `Fig3-Cis and Trans Regulation` |
-| Figure 4 | `Fig4-Prognostic markers/pathways based on AD-TMP` |
+| Figure 4 | `Fig4-Prognostic markers:pathways based on AD-TMP` |
 | Figure 5 | `Fig5-Causal Kinase Analysis` |
 | Figure 6 | `Fig6-Prognostic Subtyping` |
 | Figure 7 | `Fig7-Immune Landscape` |
@@ -149,33 +148,24 @@ Important:
 
 ---
 
-# Step 4 (Optional) — Build the Study Data Object
-
-Some original figure scripts use a precompiled study data object for convenience.
-
-Most updated figure scripts read directly from files in the `data/` directory and do **not** require this object.
-
-From within the `data/` directory, run:
-
-```r
-source("build_study_data00.R")
-```
-
-This will generate:
-
-```text
-pediatric_aya_hgg_study_data.rds
-```
-
----
-
-# Step 5 — Run Figure-Specific Analyses
+# Step 4 — Run Figure-Specific Analyses
 
 1. Navigate to the folder corresponding to the figure of interest  
 2. Open that folder’s `README.md`  
 3. Run the scripts described there to reproduce the analysis  
 
 Each figure folder contains self-contained code and any figure-specific instructions.
+
+When scripts are run from within a figure folder, shared manuscript data are
+read from:
+
+```text
+../data/
+```
+
+Generated figure files are written directly into the respective figure folder,
+not into a nested `figures/` directory, unless a figure-specific README
+explicitly documents an exception.
 
 ---
 

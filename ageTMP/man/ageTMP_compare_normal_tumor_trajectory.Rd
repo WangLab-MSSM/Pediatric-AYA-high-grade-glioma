@@ -19,7 +19,14 @@ ageTMP_compare_normal_tumor_trajectory(
   normal_covariates = c("pH", "PMI", "Ethnicity"),
   center_age_range = c(0, 26),
   span = 1.5,
+  adaptive_span = FALSE,
+  tumor_min_span = 0.5,
+  tumor_max_span = 3,
+  normal_min_span = 1,
+  normal_max_span = 3,
+  span_step = 0.1,
   prediction_ages = NULL,
+  prediction_sample_ids = NULL,
   ci_level = 0.95
 )
 }
@@ -54,12 +61,29 @@ ageTMP_compare_normal_tumor_trajectory(
 value used for all fits, a list with \code{Normal} and \code{Tumor} entries, or a
 data frame with columns \code{feature}, \code{sex}, \code{tissue}, and \code{span}.}
 
+\item{adaptive_span}{Recompute feature/sex/tissue-specific spans by GCV.
+This mirrors the adaptive protein trajectory run used for Figure 2F/G.}
+
+\item{tumor_min_span}{Minimum span for adaptive tumor trajectories.}
+
+\item{tumor_max_span}{Maximum span for adaptive tumor trajectories.}
+
+\item{normal_min_span}{Minimum span for adaptive normal trajectories.}
+
+\item{normal_max_span}{Maximum span for adaptive normal trajectories.}
+
+\item{span_step}{Span grid step for adaptive selection.}
+
 \item{prediction_ages}{Optional numeric vector of ages where trajectories
 should be predicted. If \code{NULL}, trajectories are predicted at the tumor
 sample ages for the sex being modeled. For manuscript Figure 2C
 reproduction, pass all tumor sample ages \verb{<= 50} so each sex-stratified
 curve is evaluated on the same age support used by the original \code{tn.df}
 object.}
+
+\item{prediction_sample_ids}{Optional sample IDs corresponding to
+\code{prediction_ages}. Supplying these preserves manuscript heatmap columns
+when multiple samples share the same age.}
 
 \item{ci_level}{Confidence level for fitted trajectories.}
 }
@@ -76,12 +100,37 @@ such as pH, PMI, and ethnicity, then normal and tumor age trajectories are
 fit separately by sex.
 }
 \details{
-Manuscript reproducibility details are intentionally preserved. The loess
-fits use base \code{\link[stats:loess]{stats::loess()}} defaults, matching the original trajectory
-scripts. For normal/reference data, missing pH should be imputed before
-sex-stratified fitting, \code{Ethnicity == "H"} is combined with \code{"C"}, and
-\code{"C"} is used as the reference level when the covariate model includes
-ethnicity. The Figure 2C reproduction script also filters tumor fitting
-samples to \code{age <= 80}, evaluates each sex-stratified curve at all tumor
-ages \verb{<= 50}, and uses manuscript-specific adaptive spans.
+Several defaults and preprocessing steps intentionally preserve the original
+manuscript trajectory workflow rather than imposing a more general modeling
+API.
+\itemize{
+\item Loess fits use base \code{\link[stats:loess]{stats::loess()}} defaults, matching the original
+trajectory scripts. In particular, the package does not use
+\code{loess.control(surface = "direct")} for manuscript reproduction.
+\item Normal/reference values are adjusted with \code{score ~ pH + PMI + Ethnicity}
+when those covariates are supplied. Missing normal pH is imputed before
+sex-stratified fitting; ethnicity label \code{H} is combined with \code{C}; and \code{C}
+is used as the reference level.
+\item Tumor matrices should be centered/scaled using the manuscript centering
+range, e.g. \code{center_age_range = c(0, 50)} for the Figure 2C protein
+trajectories.
+\item The published Figure 2C protein workflow fit tumor curves using samples
+with \code{age <= 80} (\code{age.cut2 = 80} in \code{proteo_tadj50.R}). This filtering is
+performed by the reproduction script before calling this function.
+\item For Figure 2C reproduction, each sex-stratified model is predicted on the
+common set of all tumor sample ages \verb{<= 50}, not only on ages from the sex
+being modeled. Supply those ages through \code{prediction_ages}.
+\item Manuscript panels used feature/sex/tissue-specific adaptive loess spans.
+Supply them as a data frame with columns \code{feature}, \code{sex}, \code{tissue}, and
+\code{span}, or set \code{adaptive_span = TRUE} to recompute them from the supplied
+public source data.
+\item Confidence intervals are returned as \verb{fit +/- qnorm(0.975) * se} when
+\code{ci_level = 0.95}.
+}
+
+These details were validated against the original \code{tn_df.RData} and
+\code{protein_tadj50_list.RData} objects for the Figure 2C proteins \code{CNTN1},
+\code{MAPT}, and \code{L1CAM}; with the manuscript settings, generated \code{fit},
+\code{ci_lower}, and \code{ci_upper} values match the legacy \code{tn.df$value}, \code{tn.df$low},
+and \code{tn.df$hi} to floating-point tolerance.
 }

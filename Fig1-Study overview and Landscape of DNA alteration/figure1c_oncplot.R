@@ -13,12 +13,11 @@
 #   pattern, and PED/AYA mutation-class summaries are shown as side annotations.
 #
 # Inputs:
-#   - data/STable1.xlsx
+#   - ../data/STable1.xlsx
 #       * ClinicalTable
 #       * Disc_Mutation
 #
 # Outputs:
-#   - mutation_table_hope.tsv
 #   - cascade_byage_hope.pdf
 #
 # Author:
@@ -43,18 +42,16 @@ suppressPackageStartupMessages({
 
 args <- commandArgs(trailingOnly = TRUE)
 
-repo_root <- if (length(args) >= 1) {
+data_dir <- if (length(args) >= 1) {
   normalizePath(args[[1]], mustWork = TRUE)
 } else {
-  normalizePath(getwd(), mustWork = TRUE)
+  normalizePath("../data", mustWork = TRUE)
 }
 
-output_dir <- if (length(args) >= 2) args[[2]] else repo_root
-dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+output_dir <- if (length(args) >= 2) args[[2]] else "."
 
-input_workbook <- file.path(repo_root, "data", "STable1.xlsx")
+input_workbook <- file.path(data_dir, "STable1.xlsx")
 
-mutation_table_out <- file.path(output_dir, "mutation_table_hope.tsv")
 heatmap_pdf_out <- file.path(output_dir, "cascade_byage_hope.pdf")
 
 # ------------------------------------------------------------------------------
@@ -359,17 +356,6 @@ mutation_class_matrix <- mutation_class_matrix[
 
 rownames(mutation_class_matrix) <- rownames(binary_mutation_matrix)
 
-mutation_table_export <- mutation_class_matrix
-mutation_table_export[is.na(mutation_table_export)] <- "WT"
-
-write.table(
-  mutation_table_export,
-  file = mutation_table_out,
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
-
 # ------------------------------------------------------------------------------
 # Define colors and annotations
 # ------------------------------------------------------------------------------
@@ -606,5 +592,4 @@ draw(
 )
 dev.off()
 
-message("Wrote mutation table: ", mutation_table_out)
 message("Wrote heatmap PDF: ", heatmap_pdf_out)
