@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # Author: Nicole L. Tignor
-# Purpose: Recreate Figure 2A tumor/normal AD-TMP heatmap from public data using ageTMP.
+# Purpose: Recreate Figure 2A tumor/normal AD-TMP heatmap from public data using temporalCPSA.
 #
 # Design note:
 # Figure 2A is a coordinated tumor/reference trajectory heatmap. Its row order
@@ -12,7 +12,7 @@
 # visible without relying on serialized intermediate objects.
 # Input: data/STable1.xlsx sheet ClinicalTable, data/cDisc_proteome_imputed_data_09152023.tsv,
 #        data/STable2.xlsx sheet TTMP_Protein_Group.
-# Output: Figure2A_from_ageTMP.pdf and Figure2A_from_ageTMP.png.
+# Output: Figure2A_from_temporalCPSA.pdf and Figure2A_from_temporalCPSA.png.
 
 required <- c("ComplexHeatmap", "circlize", "grid", "readxl", "RColorBrewer")
 missing <- required[!vapply(required, requireNamespace, logical(1), quietly = TRUE)]
@@ -20,20 +20,18 @@ if (length(missing) > 0) {
   stop("Install required package(s): ", paste(missing, collapse = ", "), call. = FALSE)
 }
 
-if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
-  pkgload::load_all("../ageTMP", quiet = TRUE)
-} else if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("ageTMP")) {
-  pkgload::load_all("ageTMP", quiet = TRUE)
-} else if (requireNamespace("ageTMP", quietly = TRUE)) {
-  library(ageTMP)
+if (requireNamespace("temporalCPSA", quietly = TRUE)) {
+  library(temporalCPSA)
 } else {
-  stop("Install ageTMP or run this script from the repository root containing ageTMP/.", call. = FALSE)
+  stop("Install temporalCPSA before running this script.", call. = FALSE)
 }
 
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
-repo_data <- "../data"
-output_dir <- "output"
+repo_data <- Sys.getenv("FIGURE_DATA_DIR", file.path(script_dir, "..", "data"))
+output_dir <- Sys.getenv("FIGURE_OUTPUT_DIR", file.path(script_dir, "output"))
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 clinical_file <- file.path(repo_data, "STable1.xlsx")
 protein_file <- file.path(repo_data, "cDisc_proteome_imputed_data_09152023.tsv")
@@ -88,9 +86,9 @@ standardize_cl2_sankey_columns <- function(x) {
 }
 
 message("Loading public clinical, protein, and STable2 data...")
-clinical <- ageTMP_load_clinical(repo_data)
-protein_raw <- ageTMP_load_molecular(repo_data, "protein")
-groups <- as.data.frame(ageTMP_load_supplement(repo_data, "STable2", "TTMP_Protein_Group"))
+clinical <- temporalCPSA::ageTMP_load_clinical(repo_data)
+protein_raw <- temporalCPSA::ageTMP_load_molecular(repo_data, "protein")
+groups <- as.data.frame(temporalCPSA::ageTMP_load_supplement(repo_data, "STable2", "TTMP_Protein_Group"))
 groups <- standardize_cl2_sankey_columns(groups)
 if ("gene" %in% names(groups) && !"Gene" %in% names(groups)) {
   names(groups)[names(groups) == "gene"] <- "Gene"
@@ -124,13 +122,13 @@ if (length(missing_protein) > 0) {
 message("Preparing gene-level protein matrix...")
 annotation_cols <- match(c("ApprovedGeneSymbol", "Symbol.V5", "OldSymbol", "coding_gene"), names(protein_raw))
 annotation_cols <- annotation_cols[!is.na(annotation_cols)]
-protein_parts <- ageTMP_split_annotation_matrix(protein_raw, annotation_cols = annotation_cols)
-protein_mat <- ageTMP_collapse_matrix_by_feature(
+protein_parts <- temporalCPSA::ageTMP_split_annotation_matrix(protein_raw, annotation_cols = annotation_cols)
+protein_mat <- temporalCPSA::ageTMP_collapse_matrix_by_feature(
   protein_parts$matrix,
   protein_parts$annotation$ApprovedGeneSymbol
 )
 
-clinical$id <- ageTMP_normalize_sample_ids(clinical$id)
+clinical$id <- temporalCPSA::ageTMP_normalize_sample_ids(clinical$id)
 clinical$age <- as.numeric(clinical$cDisc_age)
 clinical$sex <- clinical$cDisc_Gender
 clinical$age_class <- clinical$cDisc_age_class_name_derived
@@ -164,7 +162,7 @@ if (length(features) == 0) {
   stop("No STable2 T-TMP genes overlap the public protein matrix.", call. = FALSE)
 }
 message("Restricting Figure 2A heatmap to proteins present in tumor and normal/reference matrices...")
-normal_reference <- ageTMP_load_normal_reference()
+normal_reference <- temporalCPSA::ageTMP_load_normal_reference()
 normal_protein <- normal_reference$protein$matrix
 normal_metadata <- normal_reference$protein$sample_metadata
 groups_full <- groups
@@ -181,7 +179,7 @@ prediction_ages <- plot_clinical$age
 prediction_ids <- plot_clinical$id
 col_age_class <- plot_clinical$age_class
 
-trajectory <- ageTMP_compare_normal_tumor_trajectory(
+trajectory <- temporalCPSA::ageTMP_compare_normal_tumor_trajectory(
   tumor_mat = protein_mat,
   tumor_metadata = clinical,
   normal_mat = normal_protein,
@@ -205,6 +203,12 @@ trajectory <- ageTMP_compare_normal_tumor_trajectory(
   prediction_sample_ids = prediction_ids,
   ci_level = 0.95
 )
+
+finite_trajectory_fits <- sum(is.finite(trajectory$fit))
+message("Finite trajectory fits: ", finite_trajectory_fits, " / ", length(trajectory$fit))
+if (finite_trajectory_fits == 0) {
+  stop("Trajectory fitting produced no finite AD-TMP values.", call. = FALSE)
+}
 
 make_fit_matrix <- function(traj, sex, tissue, feature_order, sample_order) {
   sex_df <- traj[traj$sex == sex & traj$tissue == tissue, c("feature", "sample_id", "fit"), drop = FALSE]
@@ -311,7 +315,7 @@ heatmap_col <- circlize::colorRamp2(c(-1, 0, 1), c("#2B00FF", "white", "#FF2A1A"
 
 # Curated pathway membership columns used in the long Figure 2A layout. These
 # are visualization annotations; the trajectory matrices and cluster rows above
-# are regenerated from public data and ageTMP.
+# are regenerated from public data and temporalCPSA.
 plot_pathways <- c(
   "GOMF_MONOATOMIC_ION_TRANSMEMBRANE_TRANSPORTER_ACTIVITY",
   "MITO3_OXPHOS",
@@ -572,6 +576,16 @@ colnames(tumor_mat) <- paste("Tumor", prediction_ids, sep = "_")
 # Place tumor trajectory columns leftmost, followed by normal/reference
 # trajectory columns.
 plot_mat <- cbind(tumor_mat, normal_mat)
+finite_plot_values <- sum(is.finite(plot_mat))
+message(
+  "Figure 2A AD-TMP matrix: ",
+  nrow(plot_mat), " rows x ", ncol(plot_mat), " columns; ",
+  finite_plot_values, " finite values; range ",
+  paste(signif(range(plot_mat, na.rm = TRUE), 3), collapse = " to ")
+)
+if (finite_plot_values == 0) {
+  stop("Figure 2A plotting matrix contains no finite AD-TMP values.", call. = FALSE)
+}
 col_df <- data.frame(
   id = colnames(plot_mat),
   age = rep(prediction_ages, times = 2),
@@ -724,8 +738,8 @@ draw_long_heatmap <- function(file, device = c("pdf", "png")) {
   grid::upViewport(2)
 }
 
-pdf_file <- file.path(output_dir, "Figure2A_from_ageTMP.pdf")
-png_file <- file.path(output_dir, "Figure2A_from_ageTMP.png")
+pdf_file <- file.path(output_dir, "Figure2A_from_temporalCPSA.pdf")
+png_file <- file.path(output_dir, "Figure2A_from_temporalCPSA.png")
 draw_long_heatmap(pdf_file, "pdf")
 draw_long_heatmap(png_file, "png")
 

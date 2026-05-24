@@ -59,14 +59,10 @@ suppressPackageStartupMessages({
   library(scales)
 })
 
-if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
-  pkgload::load_all("../ageTMP", quiet = TRUE)
-} else if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("ageTMP")) {
-  pkgload::load_all("ageTMP", quiet = TRUE)
-} else if (requireNamespace("ageTMP", quietly = TRUE)) {
-  library(ageTMP)
+if (requireNamespace("temporalCPSA", quietly = TRUE)) {
+  library(temporalCPSA)
 } else {
-  stop("Install ageTMP or run this script from the repository root containing ageTMP/.", call. = FALSE)
+  stop("Install temporalCPSA before running this script.", call. = FALSE)
 }
 
 set.seed(123)
@@ -80,7 +76,9 @@ n_boot <- 10000
 max_day <- 2000
 data_type <- "cDiscovery"
 
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 data_dir <- "../data"
 
@@ -240,12 +238,12 @@ select_sex_signature <- function(stable4, sex_label) {
 # Load data
 # ------------------------------------------------------------------------------
 
-clinical <- ageTMP::ageTMP_load_clinical(data_dir)
-clinical$id <- ageTMP::ageTMP_normalize_sample_ids(clinical$id)
+clinical <- temporalCPSA::ageTMP_load_clinical(data_dir)
+clinical$id <- temporalCPSA::ageTMP_normalize_sample_ids(clinical$id)
 if (!"sample_id" %in% colnames(clinical)) {
   clinical$sample_id <- clinical$id
 }
-clinical$sample_id <- ageTMP::ageTMP_normalize_sample_ids(clinical$sample_id)
+clinical$sample_id <- temporalCPSA::ageTMP_normalize_sample_ids(clinical$sample_id)
 
 validation_clinical_raw <- read_xlsx(
   file.path(data_dir, "STable1.xlsx"),
@@ -345,8 +343,8 @@ data0 <- data0 %>%
 # Add mutation covariates
 # ------------------------------------------------------------------------------
 
-mutation_raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "mutation")
-mutation_split <- ageTMP::ageTMP_split_annotation_matrix(
+mutation_raw <- temporalCPSA::ageTMP_load_molecular(data_dir, modality = "mutation")
+mutation_split <- temporalCPSA::ageTMP_split_annotation_matrix(
   mutation_raw,
   annotation_cols = 1,
   row_id = "ApprovedGeneSymbol"
@@ -392,8 +390,8 @@ stopifnot(all(rownames(mutation_sub) == data0$id))
 # Add protein covariates
 # ------------------------------------------------------------------------------
 
-protein_raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "protein")
-protein_split <- ageTMP::ageTMP_split_annotation_matrix(
+protein_raw <- temporalCPSA::ageTMP_load_molecular(data_dir, modality = "protein")
+protein_split <- temporalCPSA::ageTMP_split_annotation_matrix(
   protein_raw,
   annotation_cols = 1:4,
   row_id = "ApprovedGeneSymbol"
@@ -410,12 +408,12 @@ protein_by_gene <- protein_by_gene[
 ]
 
 protein_sample_idx <- match(
-  ageTMP::ageTMP_normalize_sample_ids(colnames(protein_by_gene)),
+  temporalCPSA::ageTMP_normalize_sample_ids(colnames(protein_by_gene)),
   clinical$id
 )
 if (any(is.na(protein_sample_idx))) {
   protein_sample_idx[is.na(protein_sample_idx)] <- match(
-    ageTMP::ageTMP_normalize_sample_ids(colnames(protein_by_gene)[is.na(protein_sample_idx)]),
+    temporalCPSA::ageTMP_normalize_sample_ids(colnames(protein_by_gene)[is.na(protein_sample_idx)]),
     clinical$sample_id
   )
 }

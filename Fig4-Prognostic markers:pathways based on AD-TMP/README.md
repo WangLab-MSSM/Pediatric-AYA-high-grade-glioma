@@ -8,7 +8,7 @@ cd "Fig4-Prognostic markers:pathways based on AD-TMP"
 
 Generated PDFs, PNG previews, model objects, and tables are written to `output/`.
 
-Scripts that call `library(ageTMP)` or `ageTMP::` require installation of the bundled `ageTMP` package as described in the root `README.md`. If the package source has changed, reinstall `ageTMP` before running the model scripts.
+Scripts that call `library(temporalCPSA)` or `temporalCPSA::` require installation of `temporalCPSA` from GitHub as described in the root `README.md`. If the package source has changed, reinstall `temporalCPSA` before running the model scripts.
 
 ## Figure Panels
 

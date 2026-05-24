@@ -41,8 +41,8 @@ directory.
 
 ## Rendered Output Checklist
 
-Running `Figure5_S5_causal_kinase_analysis.R` writes panel-labeled PDFs directly
-to this folder. PNG files with the same basename may be created for visual
+Running `Figure5_S5_causal_kinase_analysis.R` writes panel-labeled PDFs to
+`output/`. PNG files with the same basename may be created for visual
 inspection.
 
 | Panel label | PDF output | Optional preview |

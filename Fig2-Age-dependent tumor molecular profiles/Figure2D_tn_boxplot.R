@@ -11,23 +11,18 @@
 ##   clinical table.
 ## - Tumor protein data are read directly from the public protein
 ##   matrix in ../data.
-## - Normal reference proteome data are loaded from the ageTMP
+## - Normal reference proteome data are loaded from temporalCPSA
 ##   package reference dataset.
 ## ============================================================
 
-if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
-  pkgload::load_all("../ageTMP", quiet = TRUE)
-} else if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("ageTMP")) {
-  pkgload::load_all("ageTMP", quiet = TRUE)
-} else if (requireNamespace("ageTMP", quietly = TRUE)) {
-  library(ageTMP)
+if (requireNamespace("temporalCPSA", quietly = TRUE)) {
+  library(temporalCPSA)
 } else {
-  stop("Install ageTMP or run this script from the repository root containing ageTMP/.", call. = FALSE)
+  stop("Install temporalCPSA before running this script.", call. = FALSE)
 }
 
 library(ggplot2)
-library(ggpubr)
-library(dplyr)
+library(patchwork)
 
 ##Helper function
 
@@ -55,14 +50,14 @@ mean_collapse_by_gene <- function(data_mat, gene_vec) {
 
 data_dir <- "../data"
 
-clinical.data <- ageTMP::ageTMP_load_clinical(data_dir)
-clinical.data$id <- ageTMP::ageTMP_normalize_sample_ids(clinical.data$id)
+clinical.data <- temporalCPSA::ageTMP_load_clinical(data_dir)
+clinical.data$id <- temporalCPSA::ageTMP_normalize_sample_ids(clinical.data$id)
 if ("sample_id" %in% colnames(clinical.data)) {
-  clinical.data$sample_id <- ageTMP::ageTMP_normalize_sample_ids(clinical.data$sample_id)
+  clinical.data$sample_id <- temporalCPSA::ageTMP_normalize_sample_ids(clinical.data$sample_id)
 }
 
-protein.raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "protein")
-protein.split <- ageTMP::ageTMP_split_annotation_matrix(
+protein.raw <- temporalCPSA::ageTMP_load_molecular(data_dir, modality = "protein")
+protein.split <- temporalCPSA::ageTMP_split_annotation_matrix(
   protein.raw,
   annotation_cols = 1:4,
   row_id = "ApprovedGeneSymbol"
@@ -72,7 +67,7 @@ tumor.protein.data <- mean_collapse_by_gene(
   protein.split$annotation$ApprovedGeneSymbol
 )
 
-normal.reference <- ageTMP::ageTMP_load_normal_reference()
+normal.reference <- temporalCPSA::ageTMP_load_normal_reference()
 normal.protein.data <- normal.reference$protein$matrix
 normal.protein.meta <- normal.reference$protein$sample_metadata
 
@@ -104,11 +99,14 @@ clinical.data$cancer.group <- ifelse(
 )
 
 
-clinical.data$cancer.group <- dplyr::case_when(
-  clinical.data$cancer.group == "(HGG) High Grade Glioma (not otherwise specified)" ~ "HGG-NOS",
-  clinical.data$cancer.group == "(DMG) Diffuse Midline Glioma" ~ "DMG",
-  clinical.data$cancer.group == "ADULT-GBM" ~ "ADULT-GBM",
-  TRUE ~ "Other"
+clinical.data$cancer.group <- ifelse(
+  clinical.data$cancer.group == "(HGG) High Grade Glioma (not otherwise specified)",
+  "HGG-NOS",
+  ifelse(
+    clinical.data$cancer.group == "(DMG) Diffuse Midline Glioma",
+    "DMG",
+    ifelse(clinical.data$cancer.group == "ADULT-GBM", "ADULT-GBM", "Other")
+  )
 )
 
 ## ------------------------------------------------------------
@@ -173,28 +171,61 @@ get_tn_plot <- function(mygene) {
   plot.df <- plot.df[!is.na(plot.df$age.class), ]
   
   ## ---- statistical testing
-  test.df <- plot.df %>%
-    filter(!is.na(value), !is.na(type), !is.na(age.class), !is.na(sex)) %>%
-    group_by(sex, age.class) %>%
-    filter(n_distinct(type) > 1) %>%
-    ungroup()
+  test.df <- plot.df[
+    !is.na(plot.df$value) &
+      !is.na(plot.df$type) &
+      !is.na(plot.df$age.class) &
+      !is.na(plot.df$sex),
+    ,
+    drop = FALSE
+  ]
+  pval.list <- lapply(split(test.df, list(test.df$sex, test.df$age.class), drop = TRUE), function(x) {
+    if (length(unique(x$type)) <= 1) {
+      return(NULL)
+    }
+    p <- wilcox.test(value ~ type, data = x)$p.value
+    label <- if (p < 0.001) {
+      "***"
+    } else if (p < 0.01) {
+      "**"
+    } else if (p < 0.05) {
+      "*"
+    } else {
+      ""
+    }
+    if (label == "") {
+      return(NULL)
+    }
+    data.frame(
+      sex = x$sex[1],
+      age.class = x$age.class[1],
+      label = label,
+      y = 2,
+      stringsAsFactors = FALSE
+    )
+  })
+  pval.df <- do.call(rbind, pval.list)
+  if (is.null(pval.df)) {
+    pval.df <- data.frame(
+      sex = character(),
+      age.class = factor(levels = levels(plot.df$age.class)),
+      label = character(),
+      y = numeric()
+    )
+  }
+  pval.df$sex <- factor(pval.df$sex, levels = levels(plot.df$sex))
+  pval.df$age.class <- factor(pval.df$age.class, levels = levels(plot.df$age.class))
   
   ## ---- plot
   ggplot(plot.df, aes(x = age.class, y = value, fill = label)) +
     geom_boxplot(outlier.shape = NA, alpha = 0.8) +
     geom_jitter(size = 0.5, position = position_jitterdodge(jitter.width = 0.5)) +
-    stat_compare_means(
-      data = test.df,
-      label = "p.signif",
-      label.y = 2,
+    geom_text(
+      data = pval.df,
+      aes(x = age.class, y = y, label = label),
+      inherit.aes = FALSE,
       size = 5,
-      fontface = "bold",
-      hide.ns = TRUE,
-      method = "wilcox.test",
-      symnum.args = list(
-        cutpoints = c(0, 0.001, 0.01, 0.05, 1),
-        symbols = c("***", "**", "*", "")
-      )
+      fontface = "bold"
     ) +
     scale_fill_manual(values = c(
       "normal Female" = "#FFA7A7",
@@ -221,8 +252,10 @@ plots <- lapply(mygenes, get_tn_plot)
 ## Save figure
 ## ------------------------------------------------------------
 
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 pdf(file.path(output_dir, "Figure2D_protein_tn.pdf"), height = 3, width = 3 * length(mygenes))
-print(ggpubr::ggarrange(plotlist = plots, common.legend = TRUE, nrow = 1))
+print(wrap_plots(plots, nrow = 1, guides = "collect") & theme(legend.position = "right"))
 dev.off()

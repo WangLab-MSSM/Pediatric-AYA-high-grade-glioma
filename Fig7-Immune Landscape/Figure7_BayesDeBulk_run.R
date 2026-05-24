@@ -1,10 +1,13 @@
 library(BayesDeBulk)
 library(stringr)
 
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
+dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 # -- load  Data
-load("Data.rda")
+load(file.path(script_dir, "Data.rda"))
 
 geneID<-pro[,1]
 data<-pro[,-seq(1,4)]
@@ -66,7 +69,7 @@ gene.id<-rownames(rna)
 
 # -- load cell type signatures for deconvolution
 
-load(file="Gene_signature.rda")
+load(file = file.path(script_dir, "Gene_signature.rda"))
 
 cell.type<-unique(c(index.matrix[,1],index.matrix[,2]))
 
@@ -80,3 +83,5 @@ rna<-t(apply(rna,1,function(x)(x-mean(x[!is.na(x)]))/sd(x[!is.na(x)])))
 gibbs<-BayesDeBulk(n.iter=n.iter,burn.in=burn.in,Y=list(data,rna),markers=index.matrix,prior=NULL) 
 
 pi.post<-gibbs[[1]]
+
+saveRDS(pi.post, file.path(output_dir, "Figure7_BayesDeBulk_pi_post.rds"))

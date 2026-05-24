@@ -8,6 +8,8 @@ cd "Fig3-Cis and Trans Regulation"
 
 Generated PDFs and PNG previews are written to `output/`.
 
+Scripts that call `library(temporalCPSA)` or `temporalCPSA::` require installation of `temporalCPSA` from GitHub as described in the root `README.md`.
+
 ## Figure Panels
 
 | Analysis/Figures/Tables | Script | Output file(s) | Section in the manuscript | Simplified legend |

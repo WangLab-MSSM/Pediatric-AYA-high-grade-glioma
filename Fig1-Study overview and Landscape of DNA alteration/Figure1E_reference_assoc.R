@@ -37,7 +37,9 @@ suppressPackageStartupMessages({
 input_file <- "../data/STable1.xlsx"
 input_sheet <- "Ref_ClinicalTable"
 
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 output_table <- file.path(output_dir, "mutation_survival_association_table.tsv")
 output_plot <- file.path(output_dir, "Figure1E_reference_survival_assoc.pdf")

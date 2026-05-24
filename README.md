@@ -8,7 +8,7 @@ This repository contains code used to generate all figures and tables for the HO
 
 1. Download supplementary tables from the journal website  
 2. Download raw data from the PDC  
-3. (Optional) Install the `ageTMP` package for trajectory/CPSA analyses  
+3. (Optional) Install `temporalCPSA` for reusable trajectory/CPSA analyses  
 4. Follow the README for the figure of interest  
 
 ---
@@ -107,40 +107,42 @@ Important:
 
 ---
 
-# Step 3 (Optional) — Install the ageTMP Package
+# Step 3 (Optional) — Install temporalCPSA
 
-This repository includes the source code for the `ageTMP` R package:
+Reusable trajectory and Cross-Population Survival Analysis (CPSA) methods are
+maintained in a separate R package:
 
-```text
-ageTMP/
-```
+[`temporalCPSA`](https://github.com/lashbroz/temporalCPSA)
 
-`ageTMP` provides the reproducible analysis framework for age-dependent tumor
+`temporalCPSA` provides the reusable analysis framework for age-dependent tumor
 molecular trajectory analyses, tumor-normal/reference trajectory comparisons,
-trajectory clustering, and downstream Cross-Population Survival Analysis
-(CPSA). Some updated manuscript scripts, especially Figure 2 trajectory
-analyses and AD-TMP/CPSA workflows, call package functions directly rather than
-relying on manually prepared intermediate files.
+trajectory clustering, optional exploratory age-class diagnostics, and
+downstream CPSA. The package is intended for both reproducible manuscript
+analyses and reuse in independent cohorts.
 
-Install `ageTMP` from the repository root before running figure scripts that
-explicitly load it:
+Install `temporalCPSA` from GitHub before running updated figure scripts that
+call package functions:
 
 ```r
 install.packages("remotes")
-remotes::install_local("ageTMP")
+remotes::install_github("lashbroz/temporalCPSA")
 ```
 
 Then confirm installation:
 
 ```r
-library(ageTMP)
-ageTMP::ageTMP_status()
+library(temporalCPSA)
+temporalCPSA::ageTMP_status()
 ```
+
+The package currently retains the `ageTMP_*` function prefix for compatibility
+with manuscript reproduction scripts.
 
 Important:
 
-- `ageTMP` is required only for scripts that call `library(ageTMP)` or
-  `ageTMP::`.
+- `temporalCPSA` is required only for scripts that call package functions such
+  as `ageTMP_predict_tumor_trajectory_matrix()` or
+  `ageTMP_fit_reference_cpsa()`.
 - Figure folders may contain both original paper scripts and updated
   package-based reproducibility scripts.
 - The package is designed to read from documented files in `data/` and from
@@ -163,9 +165,9 @@ read from:
 ../data/
 ```
 
-Generated figure files are written directly into the respective figure folder,
-not into a nested `figures/` directory, unless a figure-specific README
-explicitly documents an exception.
+Generated figure files and tables are written to the `output/` subdirectory
+within the respective figure folder, unless a figure-specific README explicitly
+documents an exception.
 
 ---
 

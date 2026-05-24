@@ -41,7 +41,9 @@ protein_file <- "../data/cDisc_proteome_imputed_data_09152023.tsv"
 phosphosite_file <- "../data/cDisc_phosphosite_imputed_data_ischemia_removed_motif_11032023.tsv"
 glyco_file <- "../data/Disc_glyco_v2_imputed_batch1+2_05082024_011524.tsv"
 
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 output_figure6m_pdf <- file.path(output_dir, "Figure6M_ITGAV_sialylated_glycopeptide.pdf")
 output_figure_s6o_pdf <- file.path(output_dir, "FigureS6O_ITGAV_multiomic_subtype_replication.pdf")

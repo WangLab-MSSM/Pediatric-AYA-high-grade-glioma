@@ -8,7 +8,7 @@ cd "Fig2-Age-dependent tumor molecular profiles"
 
 Generated PDFs and PNG previews are written to `output/`.
 
-Scripts that call `library(ageTMP)` or `ageTMP::` require installation of the bundled `ageTMP` package as described in the root `README.md`.
+Scripts that call `library(temporalCPSA)` or `temporalCPSA::` require installation of `temporalCPSA` from GitHub as described in the root `README.md`.
 
 ## Figure Panels
 
