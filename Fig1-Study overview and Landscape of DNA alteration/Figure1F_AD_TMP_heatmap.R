@@ -781,25 +781,28 @@ plotme <- matched_plot$matrix
 sample_meta <- matched_plot$metadata
 
 default_survival_source <- if (identical(figure1f_mode, "manuscript")) {
-  "figure1f_package"
+  "figure1f_legacy"
 } else {
   "ref"
 }
 survival_source <- Sys.getenv("AGETMP_SURVIVAL_SOURCE", default_survival_source)
+legacy_survival_annotation <- Sys.getenv(
+  "AGETMP_FIGURE1F_SURVIVAL_ANNOTATION",
+  file.path(script_dir, "legacy_inputs", "figure1f_survival_annotation_data.tsv")
+)
 sample_meta$m_os_vali <- NA_real_
 sample_meta$f_os_vali <- NA_real_
-if (survival_source == "figure1f_package") {
-  message(
-    "Loading packaged Figure 1F survival-days annotation data. ",
-    "The survival-days annotation was generated from the reference/validation ",
-    "clinical cohort used during manuscript figure preparation, including ",
-    "additional external reference cases from CPTAC GBM studies and excluding ",
-    "study-associated cases, using observed overall-survival time among ",
-    "event-coded samples. This annotation was descriptive only, was not used ",
-    "for formal survival modeling, and is provided solely to support exact ",
-    "reproduction of the Figure 1F visualization."
-  )
-  figure1f_survival <- temporalCPSA::ageTMP_load_figure1f_survival_annotation()
+if (survival_source == "figure1f_legacy") {
+  if (!file.exists(legacy_survival_annotation)) {
+    stop(
+      "No archived Figure 1F survival-days annotation file was found. ",
+      "Place `figure1f_survival_annotation_data.tsv` in `legacy_inputs/`, ",
+      "set `AGETMP_FIGURE1F_SURVIVAL_ANNOTATION`, or set ",
+      "`AGETMP_SURVIVAL_SOURCE=ref` for a source-derived survival annotation.",
+      call. = FALSE
+    )
+  }
+  figure1f_survival <- temporalCPSA::ageTMP_load_figure1f_survival_annotation(legacy_survival_annotation)
   survival_for_loess <- data.frame(
     id = figure1f_survival$id,
     age_numeric = clean_numeric(figure1f_survival$age),
@@ -836,7 +839,7 @@ if (survival_source == "figure1f_package") {
     stringsAsFactors = FALSE
   )
 } else {
-  stop("`AGETMP_SURVIVAL_SOURCE` must be `figure1f_package`, `ref`, `validation`, or `cdisc`.", call. = FALSE)
+  stop("`AGETMP_SURVIVAL_SOURCE` must be `figure1f_legacy`, `ref`, `validation`, or `cdisc`.", call. = FALSE)
 }
 
 loess_data <- survival_for_loess[
