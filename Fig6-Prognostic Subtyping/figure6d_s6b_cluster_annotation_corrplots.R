@@ -247,7 +247,9 @@ save_corrplot <- function(tab,
                           height = 6) {
   stars <- make_stars(fdr_mat)
   
-  output_dir <- "output"
+  script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+  output_dir <- file.path(script_dir, "output")
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   pdf(file.path(output_dir, output_pdf), width = width, height = height, useDingbats = FALSE)
   

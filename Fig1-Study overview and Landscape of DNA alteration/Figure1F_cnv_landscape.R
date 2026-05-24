@@ -1,5 +1,7 @@
 library(openxlsx)
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 # read data ################################
 clinical = read.xlsx('../data/STable1.xlsx', sheet = "ClinicalTable")

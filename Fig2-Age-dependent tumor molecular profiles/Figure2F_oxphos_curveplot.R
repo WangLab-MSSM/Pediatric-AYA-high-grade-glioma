@@ -1,20 +1,16 @@
 #!/usr/bin/env Rscript
 # Author: Nicole L. Tignor
 # Purpose: Recreate the Figure 2F OXPHOS normal/tumor trajectory bundle from
-#          public protein data using ageTMP.
+#          public protein data using temporalCPSA.
 # Input: data/cDisc_proteome_imputed_data_09152023.tsv,
 #        data/STable1.xlsx sheet ClinicalTable,
-#        ageTMP package normal reference data
-# Output: Figure2F_oxphos_from_ageTMP.pdf and Figure2F_oxphos_from_ageTMP.png
+#        temporalCPSA package normal reference data
+# Output: Figure2F_oxphos_from_temporalCPSA.pdf and Figure2F_oxphos_from_temporalCPSA.png
 
-if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("../ageTMP")) {
-  pkgload::load_all("../ageTMP", quiet = TRUE)
-} else if (requireNamespace("pkgload", quietly = TRUE) && dir.exists("ageTMP")) {
-  pkgload::load_all("ageTMP", quiet = TRUE)
-} else if (requireNamespace("ageTMP", quietly = TRUE)) {
-  library(ageTMP)
+if (requireNamespace("temporalCPSA", quietly = TRUE)) {
+  library(temporalCPSA)
 } else {
-  stop("Install ageTMP or run this script from the repository root containing ageTMP/.", call. = FALSE)
+  stop("Install temporalCPSA before running this script.", call. = FALSE)
 }
 
 required_packages <- c("ggplot2", "geomtextpath")
@@ -26,10 +22,12 @@ if (length(missing_packages) > 0) {
 }
 
 data_dir <- "../data"
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-output_pdf <- file.path(output_dir, "Figure2F_oxphos_from_ageTMP.pdf")
-output_png <- file.path(output_dir, "Figure2F_oxphos_from_ageTMP.png")
+output_pdf <- file.path(output_dir, "Figure2F_oxphos_from_temporalCPSA.pdf")
+output_png <- file.path(output_dir, "Figure2F_oxphos_from_temporalCPSA.png")
 apply_sd_filter <- FALSE
 sd_min <- 0.15
 
@@ -75,9 +73,9 @@ oxphos_genes <- c(
 )
 
 message("Loading clinical data...")
-clinical_raw <- ageTMP::ageTMP_load_clinical(data_dir)
+clinical_raw <- temporalCPSA::ageTMP_load_clinical(data_dir)
 clinical <- data.frame(
-  id = ageTMP::ageTMP_normalize_sample_ids(clinical_raw$id),
+  id = temporalCPSA::ageTMP_normalize_sample_ids(clinical_raw$id),
   age = clinical_raw$cDisc_age,
   sex = clinical_raw$cDisc_Gender,
   age_class = clinical_raw$cDisc_age_class_name_derived,
@@ -85,13 +83,13 @@ clinical <- data.frame(
 )
 
 message("Loading and collapsing public tumor protein data...")
-protein_raw <- ageTMP::ageTMP_load_molecular(data_dir, modality = "protein")
-protein <- ageTMP::ageTMP_split_annotation_matrix(
+protein_raw <- temporalCPSA::ageTMP_load_molecular(data_dir, modality = "protein")
+protein <- temporalCPSA::ageTMP_split_annotation_matrix(
   protein_raw,
   annotation_cols = 1:4,
   row_id = "ApprovedGeneSymbol"
 )
-tumor_protein <- ageTMP::ageTMP_collapse_matrix_by_feature(
+tumor_protein <- temporalCPSA::ageTMP_collapse_matrix_by_feature(
   protein$matrix,
   protein$annotation$ApprovedGeneSymbol
 )
@@ -103,7 +101,7 @@ tumor_protein <- tumor_protein[, intersect(colnames(tumor_protein), fit_ids), dr
 clinical <- clinical[clinical$id %in% colnames(tumor_protein), , drop = FALSE]
 
 message("Loading package normal reference data...")
-normal_reference <- ageTMP::ageTMP_load_normal_reference()
+normal_reference <- temporalCPSA::ageTMP_load_normal_reference()
 normal_protein <- normal_reference$protein$matrix
 normal_metadata <- normal_reference$protein$sample_metadata
 
@@ -126,7 +124,7 @@ prediction_ages <- sort(unique(clinical$age[
     clinical$age <= 49
 ]))
 
-trajectory <- ageTMP::ageTMP_compare_normal_tumor_trajectory(
+trajectory <- temporalCPSA::ageTMP_compare_normal_tumor_trajectory(
   tumor_mat = tumor_protein,
   tumor_metadata = clinical,
   normal_mat = normal_protein,
@@ -170,13 +168,13 @@ trajectory_linetypes <- c(
   "Female Normal" = "dashed"
 )
 
-sd_rank <- ageTMP::ageTMP_rank_trajectory_sd(
+sd_rank <- temporalCPSA::ageTMP_rank_trajectory_sd(
   trajectory,
   group_cols = "sex",
   tissue = "Tumor"
 )
 if (apply_sd_filter) {
-  keep_genes <- ageTMP::ageTMP_filter_trajectory_sd(
+  keep_genes <- temporalCPSA::ageTMP_filter_trajectory_sd(
     sd_rank,
     sd_min = sd_min,
     group_cols = "sex",

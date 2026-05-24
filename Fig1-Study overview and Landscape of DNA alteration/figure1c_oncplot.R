@@ -41,14 +41,16 @@ suppressPackageStartupMessages({
 # ------------------------------------------------------------------------------
 
 args <- commandArgs(trailingOnly = TRUE)
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
 
 data_dir <- if (length(args) >= 1) {
   normalizePath(args[[1]], mustWork = TRUE)
 } else {
-  normalizePath("../data", mustWork = TRUE)
+  normalizePath(file.path(script_dir, "..", "data"), mustWork = TRUE)
 }
 
-output_dir <- if (length(args) >= 2) args[[2]] else "output"
+output_dir <- if (length(args) >= 2) args[[2]] else file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 input_workbook <- file.path(data_dir, "STable1.xlsx")

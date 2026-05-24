@@ -36,4 +36,4 @@ The current repository also includes assembled Figure 7 C/D outputs:
 These assembled PDFs collect the available Figure 7 C/D panels rather than
 writing each panel as a separate file from the BayesDeBulk run script. If
 panel-wise Figure 7 plotting code is added later, output PDFs should be written
-directly to this folder and should include the panel label in the filename.
+to `output/` and should include the panel label in the filename.

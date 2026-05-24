@@ -48,7 +48,9 @@ suppressPackageStartupMessages({
 
 input_file <- file.path("../data", "STable6.xlsx")
 input_sheet <- "C2-Specific-Sex-Bias-Pathway"
-output_dir <- "output"
+script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
+script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()
+output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 output_file <- file.path(output_dir, "Figure6K_glycopeptide_pathway_enrichment.pdf")
 

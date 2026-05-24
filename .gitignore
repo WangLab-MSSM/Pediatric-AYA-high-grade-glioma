@@ -1,2 +1,16 @@
 .DS_Store
 Rplots.pdf
+
+# Generated figure outputs are local/private.
+**/output/*
+!**/output/.gitkeep
+
+# Manuscript source data are local/private until release.
+data/*
+!data/README.md
+!data/.gitkeep
+
+# Archived manuscript visualization inputs are local/private unless explicitly released.
+**/legacy_inputs/*
+!**/legacy_inputs/README.md
+!**/legacy_inputs/.gitkeep
