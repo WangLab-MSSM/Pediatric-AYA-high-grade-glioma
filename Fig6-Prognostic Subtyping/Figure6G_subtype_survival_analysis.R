@@ -26,6 +26,7 @@ suppressPackageStartupMessages({
   library(survminer)
   library(cowplot)
   library(colorspace)
+  library(readxl)
 })
 
 clinical.data <- data.frame(
