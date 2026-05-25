@@ -14,7 +14,7 @@
 # Outputs:
 #   - Figure1A_clinical_overview.pdf
 #
-# Author: Nicole Tignor
+# Author: Weiping Ma
 # Affiliation: Icahn School of Medicine at Mount Sinai
 # ============================================================
 

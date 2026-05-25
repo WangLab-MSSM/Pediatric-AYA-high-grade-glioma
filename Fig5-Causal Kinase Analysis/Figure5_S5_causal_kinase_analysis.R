@@ -1,7 +1,7 @@
 ################################################################################
 # Causal kinase analysis
 #
-# Author: Nicole Tignor
+# Author: Shrabanti Chowdhury
 # Affiliation: Icahn School of Medicine at Mount Sinai
 # Purpose: Reproduce Figure 5 and Figure S5 causal kinase analysis panels.
 # Output: Panel-labeled PDF files in the Figure 5 analysis folder.
