@@ -27,8 +27,9 @@ Assembled Figure 7 PDFs and PNG previews, when supplied, are stored in
 `Figure7_BayesDeBulk_run.R` performs the BayesDeBulk preprocessing and model run
 using `Data.rda` and `Gene_signature.rda`, producing `pi.post` in memory and
 writing `Figure7_BayesDeBulk_pi_post.rds` to `output/`. This script requires the
-external `BayesDeBulk` R package, which is not available from CRAN and is not
-installed by the root setup instructions.
+external [`BayesDeBulk`](https://github.com/WangLab-MSSM/BayesDeBulk) R package,
+which is not available from CRAN and is not installed by the root setup
+instructions.
 
 If supplied separately, assembled Figure 7 C/D outputs should be placed in
 `output/`:
