@@ -2,9 +2,9 @@
 # Affiliation: Icahn School of Medicine at Mount Sinai
 #
 # Purpose:
-#   Generate the Discovery-cohort copy-number landscape overview associated
-#   with Figure 1, using the public CNV matrix and clinical annotations from
-#   the repository-level data directory.
+#   Generate the Figure S1D Discovery-cohort copy-number landscape overview
+#   using the public CNV matrix and clinical annotations from the
+#   repository-level data directory.
 
 library(openxlsx)
 script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
@@ -109,6 +109,6 @@ h.U40.r = Heatmap(t(cnv.U40),name = 'CNV',
                   # ,top_annotation = ha2
 )
 
-pdf(file.path(output_dir, 'Figure1_CNV_landscape.pdf'),height = 6,width = 12)
+pdf(file.path(output_dir, 'FigureS1D_CNV_landscape.pdf'),height = 6,width = 12)
 draw(h.U40.r)
 dev.off()
