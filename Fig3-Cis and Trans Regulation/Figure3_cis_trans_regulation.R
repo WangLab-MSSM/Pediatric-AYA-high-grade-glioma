@@ -27,10 +27,38 @@
 # ============================================================
 
 library(openxlsx)
-if (requireNamespace("temporalCPSA", quietly = TRUE)) {
-  library(temporalCPSA)
-} else {
-  stop("Install temporalCPSA before running this script.", call. = FALSE)
+
+normalize_sample_ids <- function(x) {
+  x <- as.character(x)
+  gsub("\\.", "-", gsub("^((X|A\\.|G\\.|P\\.))", "", x))
+}
+
+read_public_tsv <- function(filename) {
+  read.delim(
+    file.path(data_dir, filename),
+    sep = "\t",
+    check.names = FALSE,
+    stringsAsFactors = FALSE,
+    na.strings = c("NA", "", "NaN")
+  )
+}
+
+split_annotation_matrix <- function(data, annotation_cols, row_id = NULL) {
+  annotation <- data[, annotation_cols, drop = FALSE]
+  matrix_data <- data[
+    ,
+    setdiff(seq_along(data), match(names(annotation), names(data))),
+    drop = FALSE
+  ]
+  matrix_data <- as.data.frame(lapply(matrix_data, function(x) suppressWarnings(as.numeric(x))))
+  matrix_data <- as.matrix(matrix_data)
+
+  if (!is.null(row_id)) {
+    rownames(matrix_data) <- annotation[[row_id]]
+  }
+
+  colnames(matrix_data) <- normalize_sample_ids(colnames(matrix_data))
+  list(annotation = annotation, matrix = matrix_data)
 }
 
 # read data ################################
@@ -40,30 +68,30 @@ script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWo
 output_dir <- file.path(script_dir, "output")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
-clinical = temporalCPSA::ageTMP_load_clinical(data_dir)
-clinical$id = temporalCPSA::ageTMP_normalize_sample_ids(clinical$id)
+clinical = read.xlsx(file.path(data_dir, "STable1.xlsx"), sheet = "ClinicalTable")
+clinical$id = normalize_sample_ids(clinical$id)
 if ("sample_id" %in% colnames(clinical)) {
-  clinical$sample_id = temporalCPSA::ageTMP_normalize_sample_ids(clinical$sample_id)
+  clinical$sample_id = normalize_sample_ids(clinical$sample_id)
 }
 
-mut.raw = temporalCPSA::ageTMP_load_molecular(data_dir, modality = 'mutation')
-mut.split = temporalCPSA::ageTMP_split_annotation_matrix(
+mut.raw = read_public_tsv("cDisc_mutation_10192023.tsv")
+mut.split = split_annotation_matrix(
   mut.raw,
   annotation_cols = 1,
   row_id = 'ApprovedGeneSymbol'
 )
 mut = mut.split$matrix
 
-rna.raw = temporalCPSA::ageTMP_load_molecular(data_dir, modality = 'rna')
-rna.split = temporalCPSA::ageTMP_split_annotation_matrix(
+rna.raw = read_public_tsv("cDisc_rna_coding_10192023.tsv")
+rna.split = split_annotation_matrix(
   rna.raw,
   annotation_cols = 1:3,
   row_id = 'ApprovedGeneSymbol'
 )
 rna = rna.split$matrix
 
-cnv.raw = temporalCPSA::ageTMP_load_molecular(data_dir, modality = 'cnv')
-cnv.split = temporalCPSA::ageTMP_split_annotation_matrix(
+cnv.raw = read_public_tsv("cDisc_CNV_coding_10252023.tsv")
+cnv.split = split_annotation_matrix(
   cnv.raw,
   annotation_cols = 1,
   row_id = 'ApprovedGeneSymbol'
@@ -71,8 +99,8 @@ cnv.split = temporalCPSA::ageTMP_split_annotation_matrix(
 cnv = cnv.split$matrix
 g.cnv = cnv.split$annotation$ApprovedGeneSymbol
 
-protein.raw = temporalCPSA::ageTMP_load_molecular(data_dir, modality = 'protein')
-protein.split = temporalCPSA::ageTMP_split_annotation_matrix(
+protein.raw = read_public_tsv("cDisc_proteome_imputed_data_09152023.tsv")
+protein.split = split_annotation_matrix(
   protein.raw,
   annotation_cols = 1:4,
   row_id = 'ApprovedGeneSymbol'
