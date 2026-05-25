@@ -109,6 +109,6 @@ h.U40.r = Heatmap(t(cnv.U40),name = 'CNV',
                   # ,top_annotation = ha2
 )
 
-pdf(file.path(output_dir, 'Figure1F_cnv_landscape.pdf'),height = 6,width = 12)
+pdf(file.path(output_dir, 'Figure1_CNV_landscape.pdf'),height = 6,width = 12)
 draw(h.U40.r)
 dev.off()
