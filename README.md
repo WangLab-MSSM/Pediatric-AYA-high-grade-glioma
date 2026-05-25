@@ -138,9 +138,6 @@ library(temporalCPSA)
 temporalCPSA::ageTMP_status()
 ```
 
-The package currently retains the `ageTMP_*` function prefix for compatibility
-with manuscript reproduction scripts.
-
 Important:
 
 - `temporalCPSA` is required only for scripts that call package functions such
