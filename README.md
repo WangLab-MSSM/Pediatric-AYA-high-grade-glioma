@@ -128,6 +128,17 @@ install.packages("remotes")
 remotes::install_github("lashbroz/temporalCPSA")
 ```
 
+To also install the package overview vignette for use with
+`browseVignettes("temporalCPSA")`, run:
+
+```r
+remotes::install_github(
+  "lashbroz/temporalCPSA",
+  build_vignettes = TRUE,
+  dependencies = TRUE
+)
+```
+
 Then confirm installation:
 
 ```r
