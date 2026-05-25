@@ -455,10 +455,10 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
   }
 
   if (isTRUE(manuscript_style_rows)) {
-    selected <- lapply(c("protein", "phospho", "rna"), function(modality) {
+    selected <- lapply(c("rna", "protein", "phospho"), function(modality) {
       select_dynamic_rows(tmp_matrices[[modality]], modality)
     })
-    names(selected) <- c("protein", "phospho", "rna")
+    names(selected) <- c("rna", "protein", "phospho")
     if (isTRUE(legacy_figure1f_structure)) {
       common_ids <- Reduce(intersect, lapply(selected, colnames))
       selected <- lapply(selected, function(mat) mat[, match(common_ids, colnames(mat)), drop = FALSE])
