@@ -1,7 +1,8 @@
 #!/usr/bin/env Rscript
 
 # ==============================================================================
-# Author: Nicole L. Tignor
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 # Purpose: Recreate Figure 4B from public supplementary table data
 # Input: data/STable4.xlsx, sheet SA-Glyco-Disc
 # Output: Figure 4B PDF

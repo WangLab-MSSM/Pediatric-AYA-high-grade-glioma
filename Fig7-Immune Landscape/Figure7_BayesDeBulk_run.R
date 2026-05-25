@@ -1,3 +1,6 @@
+# Author: Francesca Petralia
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 library(BayesDeBulk)
 library(stringr)
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 # Figure 1F manuscript reproduction. The age-class structure shown in this
 # panel was derived early in the study from the data versions available during
 # manuscript development. This script preserves the archived AD-TMP heatmap

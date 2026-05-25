@@ -1,3 +1,6 @@
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 ###############################################################
 # HOPE Pediatric/AYA High-Grade Glioma Study
 # Pathway-Level Tumor-Normal and Sex-Bias Heatmaps

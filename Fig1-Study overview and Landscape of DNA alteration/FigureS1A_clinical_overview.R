@@ -15,7 +15,7 @@
 # Outputs:
 #   - FigureS1A_sample_availability.pdf
 #
-# Author: Weiping Ma
+# Author: Nicole Tignor
 # Affiliation: Icahn School of Medicine at Mount Sinai
 # ============================================================
 

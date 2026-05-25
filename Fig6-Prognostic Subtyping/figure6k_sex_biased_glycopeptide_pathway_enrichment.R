@@ -7,7 +7,8 @@
 # Title:
 #   Figure 6K — Sex-biased glycopeptide pathway enrichment analysis
 #
-# Author:
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 #   Nicole L. Tignor, PhD
 #   Department of Genetics and Genomics
 #   Icahn School of Medicine at Mount Sinai

@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 # Figure 1F final-data analogue. The age classes displayed in the manuscript
 # were derived early in the study using then-current data versions. This script
 # uses the final repository data tables and temporalCPSA to render the same

@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 # ==============================================================================
 # File: Figure6M_S6O_S6E_S6J_6I_cd276_itgav_pla2g4a_subtype_analysis.R
 # ==============================================================================
@@ -7,6 +10,11 @@
 # Title:
 #   Figure 6M, Figure S6O, Figure S6J, Figure 6I, and Figure S6E —
 #   subtype-based abundance plots
+#
+# Description:
+#   Reproduce subtype-stratified protein, RNA, phosphosite, and glycopeptide
+#   abundance panels highlighting ITGAV, PLA2G4A, and CD276/B7-H3 patterns
+#   across cDiscovery protein subtypes and sex/age groups.
 #
 # Outputs:
 #   - Figure6M_ITGAV_sialylated_glycopeptide.pdf
