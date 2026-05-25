@@ -114,6 +114,9 @@ maintained in a separate R package:
 
 [`temporalCPSA`](https://github.com/lashbroz/temporalCPSA)
 
+Package documentation and the overview article are available at:
+<https://lashbroz.github.io/temporalCPSA/>
+
 `temporalCPSA` provides the reusable analysis framework for age-dependent tumor
 molecular trajectory analyses, tumor-normal/reference trajectory comparisons,
 trajectory clustering, optional exploratory age-class diagnostics, and
@@ -128,17 +131,6 @@ install.packages("remotes")
 remotes::install_github("lashbroz/temporalCPSA")
 ```
 
-To also install the package overview vignette for use with
-`browseVignettes("temporalCPSA")`, run:
-
-```r
-remotes::install_github(
-  "lashbroz/temporalCPSA",
-  build_vignettes = TRUE,
-  dependencies = TRUE
-)
-```
-
 Then confirm installation:
 
 ```r
@@ -146,16 +138,11 @@ library(temporalCPSA)
 temporalCPSA::ageTMP_status()
 ```
 
-The package currently retains the `ageTMP_*` function prefix for compatibility
-with manuscript reproduction scripts.
-
 Important:
 
 - `temporalCPSA` is required only for scripts that call package functions such
   as `ageTMP_predict_tumor_trajectory_matrix()` or
   `ageTMP_fit_reference_cpsa()`.
-- Figure folders may contain both original paper scripts and updated
-  package-based reproducibility scripts.
 - The package is designed to read from documented files in `data/` and from
   documented package reference data where applicable.
 
