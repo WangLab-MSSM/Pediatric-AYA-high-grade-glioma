@@ -146,8 +146,6 @@ Important:
 - `temporalCPSA` is required only for scripts that call package functions such
   as `ageTMP_predict_tumor_trajectory_matrix()` or
   `ageTMP_fit_reference_cpsa()`.
-- Figure folders may contain both original paper scripts and updated
-  package-based reproducibility scripts.
 - The package is designed to read from documented files in `data/` and from
   documented package reference data where applicable.
 
