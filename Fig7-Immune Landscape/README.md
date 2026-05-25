@@ -6,7 +6,8 @@ Complete the shared setup steps in the root `README.md` before running these scr
 cd "Fig7-Immune Landscape"
 ```
 
-Assembled Figure 7 PDFs and PNG previews are stored in `output/`.
+Assembled Figure 7 PDFs and PNG previews, when supplied, are stored in
+`output/`.
 
 ## Figure Panels
 
@@ -24,11 +25,13 @@ Assembled Figure 7 PDFs and PNG previews are stored in `output/`.
 ## Current Script Status
 
 `Figure7_BayesDeBulk_run.R` performs the BayesDeBulk preprocessing and model run
-using `Data.rda` and `Gene_signature.rda`, producing `pi.post` in memory. This
-script represents the computational setup for the Figure 7 immune deconvolution
-analysis.
+using `Data.rda` and `Gene_signature.rda`, producing `pi.post` in memory and
+writing `Figure7_BayesDeBulk_pi_post.rds` to `output/`. This script requires the
+external `BayesDeBulk` R package, which is not available from CRAN and is not
+installed by the root setup instructions.
 
-The current repository also includes assembled Figure 7 C/D outputs:
+If supplied separately, assembled Figure 7 C/D outputs should be placed in
+`output/`:
 
 - `MainFigure7_CD.pdf`
 - `SFigure7_CD.pdf`

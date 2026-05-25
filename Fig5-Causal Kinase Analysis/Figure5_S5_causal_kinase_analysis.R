@@ -138,11 +138,14 @@ black[8:11, 8:11]<- T # mut <--> (no) mut
 
 rownames(black)<- colnames(black)<- rownames(datay3) 
 
-library(dagbagM)
-res.hc<- dagbagM::hc_boot_parallel(Y=t(as.matrix(datay3)), n.boot=100, nodeType=c(rep("b",11),rep("c",dim(data3)[1]), rep("b",1)),  whiteList=NULL, blackList=black, standardize=TRUE, tol = 1e-6, maxStep = 1000, restart=10, seed = 1,  nodeShuffle=TRUE, numThread = 2,verbose = FALSE)
+if (requireNamespace("dagbagM", quietly = TRUE)) {
+  res.hc<- dagbagM::hc_boot_parallel(Y=t(as.matrix(datay3)), n.boot=100, nodeType=c(rep("b",11),rep("c",dim(data3)[1]), rep("b",1)),  whiteList=NULL, blackList=black, standardize=TRUE, tol = 1e-6, maxStep = 1000, restart=10, seed = 1,  nodeShuffle=TRUE, numThread = 2,verbose = FALSE)
 
-adj=score_shd(res.hc,threshold=0.4, whitelist = NULL, blacklist = black)$adj.matrix
-rownames(adj)<- colnames(adj)<- rownames(datay3)
+  adj=dagbagM::score_shd(res.hc,threshold=0.4, whitelist = NULL, blacklist = black)$adj.matrix
+  rownames(adj)<- colnames(adj)<- rownames(datay3)
+} else {
+  message("Package `dagbagM` is not installed; using included consensus DAG inputs for Figure 5 network rendering.")
+}
 
 load("data/consensus_DAG.RData")
 
