@@ -114,6 +114,9 @@ maintained in a separate R package:
 
 [`temporalCPSA`](https://github.com/lashbroz/temporalCPSA)
 
+Package documentation and the overview article are available at:
+<https://lashbroz.github.io/temporalCPSA/>
+
 `temporalCPSA` provides the reusable analysis framework for age-dependent tumor
 molecular trajectory analyses, tumor-normal/reference trajectory comparisons,
 trajectory clustering, optional exploratory age-class diagnostics, and
@@ -126,17 +129,6 @@ call package functions:
 ```r
 install.packages("remotes")
 remotes::install_github("lashbroz/temporalCPSA")
-```
-
-To also install the package overview vignette for use with
-`browseVignettes("temporalCPSA")`, run:
-
-```r
-remotes::install_github(
-  "lashbroz/temporalCPSA",
-  build_vignettes = TRUE,
-  dependencies = TRUE
-)
 ```
 
 Then confirm installation:
