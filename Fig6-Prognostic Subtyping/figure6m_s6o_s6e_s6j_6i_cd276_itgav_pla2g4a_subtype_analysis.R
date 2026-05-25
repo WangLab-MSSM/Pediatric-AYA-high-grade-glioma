@@ -11,6 +11,11 @@
 #   Figure 6M, Figure S6O, Figure S6J, Figure 6I, and Figure S6E —
 #   subtype-based abundance plots
 #
+# Description:
+#   Reproduce subtype-stratified protein, RNA, phosphosite, and glycopeptide
+#   abundance panels highlighting ITGAV, PLA2G4A, and CD276/B7-H3 patterns
+#   across cDiscovery protein subtypes and sex/age groups.
+#
 # Outputs:
 #   - Figure6M_ITGAV_sialylated_glycopeptide.pdf
 #   - FigureS6O_ITGAV_multiomic_subtype_replication.pdf

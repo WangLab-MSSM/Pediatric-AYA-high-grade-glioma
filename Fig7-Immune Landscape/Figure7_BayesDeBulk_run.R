@@ -1,5 +1,10 @@
 # Author: Francesca Petralia
 # Affiliation: Icahn School of Medicine at Mount Sinai
+#
+# Purpose:
+#   Run the BayesDeBulk immune deconvolution workflow used for the Figure 7
+#   immune landscape analysis and write the posterior cell-fraction object to
+#   the local output directory.
 
 library(BayesDeBulk)
 library(stringr)

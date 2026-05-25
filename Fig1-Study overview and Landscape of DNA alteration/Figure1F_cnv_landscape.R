@@ -1,5 +1,10 @@
 # Author: Nicole Tignor
 # Affiliation: Icahn School of Medicine at Mount Sinai
+#
+# Purpose:
+#   Generate the Discovery-cohort copy-number landscape overview associated
+#   with Figure 1, using the public CNV matrix and clinical annotations from
+#   the repository-level data directory.
 
 library(openxlsx)
 script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
