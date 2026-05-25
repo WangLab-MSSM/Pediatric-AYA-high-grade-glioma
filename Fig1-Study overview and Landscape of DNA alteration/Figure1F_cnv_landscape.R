@@ -1,3 +1,6 @@
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 library(openxlsx)
 script_file <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
 script_dir <- if (!is.na(script_file)) dirname(normalizePath(script_file, mustWork = TRUE)) else getwd()

@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
-# Author: Nicole L. Tignor
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 # Purpose: Recreate the Figure 2F OXPHOS normal/tumor trajectory bundle from
 #          public protein data using temporalCPSA.
 # Input: data/cDisc_proteome_imputed_data_09152023.tsv,

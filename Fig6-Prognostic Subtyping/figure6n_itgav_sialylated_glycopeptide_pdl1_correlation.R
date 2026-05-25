@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 # -----------------------------------------------------------------------------
 # Figure 6N: ITGAV sialylated glycopeptide vs PD-L1/CD274 protein abundance
 #

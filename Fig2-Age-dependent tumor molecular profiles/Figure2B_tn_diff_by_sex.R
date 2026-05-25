@@ -5,7 +5,8 @@
 # Title:
 #   Tumor Cluster Pathway Enrichment Analysis
 #
-# Author:
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 #   Nicole L. Tignor, PhD
 #   Department of Genetics and Genomics
 #   Icahn School of Medicine at Mount Sinai

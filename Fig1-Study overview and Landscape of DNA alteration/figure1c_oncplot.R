@@ -20,7 +20,8 @@
 # Outputs:
 #   - Figure1C_oncplot.pdf
 #
-# Author:
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 #   Nicole L. Tignor, PhD
 #   Department of Genetics and Genomic Sciences
 #   Icahn School of Medicine at Mount Sinai

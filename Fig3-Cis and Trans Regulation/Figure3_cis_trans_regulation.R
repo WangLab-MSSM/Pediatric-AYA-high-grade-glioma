@@ -22,7 +22,7 @@
 #   - FigureS3E_CNV_cis_regulation_circle.pdf
 #   - FigureS3F_CNV_RNA_boxplots.pdf
 #
-# Author: Weiping Ma
+# Author: Nicole Tignor
 # Affiliation: Icahn School of Medicine at Mount Sinai
 # ============================================================
 

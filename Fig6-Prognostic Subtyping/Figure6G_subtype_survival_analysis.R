@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 ## =========================================================
 ## Figure 6G / STable 6 (Sheet 8: Subtype-Survival_Assoc)
 ##

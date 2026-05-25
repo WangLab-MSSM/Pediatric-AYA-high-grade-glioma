@@ -1,3 +1,6 @@
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
+
 ## ============================================================
 ## Tumor vs normal protein plots (all cancer groups)
 ##

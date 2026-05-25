@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
-# Author: Nicole L. Tignor
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 # Purpose: Recreate Figure 2A tumor/normal AD-TMP heatmap from public data using temporalCPSA.
 #
 # Design note:

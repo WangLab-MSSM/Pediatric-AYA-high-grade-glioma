@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
-# Author: Nicole L. Tignor
+# Author: Nicole Tignor
+# Affiliation: Icahn School of Medicine at Mount Sinai
 
 # Reproduce the Figure 2C protein normal/tumor trajectory panel using temporalCPSA.
 #
