@@ -108,18 +108,6 @@ protein.split = split_annotation_matrix(
 protein = protein.split$matrix
 g.protein = protein.split$annotation$ApprovedGeneSymbol
 
-## read kea3 #####################
-# kea3.hope = read.table('~/Dropbox/HOPE_iProFun/kea3_HOPE_pho_zscore_top500_normalized.tsv',sep = '\t',header = T,row.names = 1)
-
-## read survival #################
-
-### table S4 tab 6, 8 
-
-# s.m.pro = read.table('~/Dropbox/HOPE_iProFun/HOPE_surv/male_protein_survival_06302023.tsv',sep = '\t',header = T)
-# s.m.rna = read.table('~/Dropbox/HOPE_iProFun/HOPE_surv/male_rna_survival_06302023.tsv',sep = '\t',header = T)
-# s.f.pro = read.table('~/Dropbox/HOPE_iProFun/HOPE_surv/female_protein_survival_06302023.tsv',sep = '\t',header = T)
-# s.f.rna = read.table('~/Dropbox/HOPE_iProFun/HOPE_surv/female_rna_survival_06302023.tsv',sep = '\t',header = T)
-
 ## read cnv cis results from supp table 3 ##########
 
 cis.res = read.xlsx('../data/STable3.xlsx',sheet = "cis_cnv_methylation")
@@ -130,7 +118,6 @@ colnames(cis.res)[4:8+5*3] = paste(colnames(cis.res)[4+5*3],cis.res[1,4:8+5*3])
 cis.res = cis.res[which(cis.res$predictor=='cnv'),]
 
 ## read gene location from supp table 1 ############
-# gene_loc = read.delim2('~/Dropbox/HOPE_iProFun/harmonized_gene_location_10232023.tsv',sep = '\t',header = T,check.names = F)
 gene_loc = read.xlsx('../data/STable1.xlsx',sheet = "Gene_Location_Annotation")
 # figure 3A #######################
 
@@ -174,8 +161,6 @@ for( g in c('ATRX','TP53','NF1'))
   
   df.mut.plot = rbind(df.mut.plot,df.g)
 }
-
-# saveRDS(df.mut.plot,'~/Dropbox/HOPE_iProFun/github/df.mut.plot_f3.rds')
 
 gg.mut.pro=
   ggplot(df.mut.plot[df.mut.plot$gene!='NF1',],aes(x = mut, y = protein.zscore, alpha=0.2,fill=mut)) + 
@@ -484,12 +469,6 @@ prop_loss = prop_loss[,-1]
 
 colnames(prop_gain) = g.cnv
 colnames(prop_loss) = g.cnv
-
-# # save(prop_gain,prop_loss,file = '~/../Dropbox/HOPE_iProFun/HOPE_cnv_age.cl_summary_v6.RData')
-# save(prop_gain,prop_loss,file = '~/../Dropbox/HOPE_iProFun/HOPE_cnv_age.cl_summary_sd_v6.RData')
-
-# load('~/../Dropbox/HOPE_iProFun/HOPE_cnv_age.cl_summary_v6.RData')
-# load('~/../Dropbox/HOPE_iProFun/HOPE_cnv_age.cl_summary_sd_v6.RData')
 
 gene.loc = gene_loc[,c(1:3,8)]
 colnames(gene.loc) = c('chr',     'start',       'end','gene')
