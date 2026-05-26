@@ -31,7 +31,11 @@ if (nzchar(temporal_cpsa_source) && requireNamespace("pkgload", quietly = TRUE))
   stop("Install temporalCPSA before running Figure 1F age-segmentation support.", call. = FALSE)
 }
 
-required_functions <- c("ageTMP_segment_diagnostic_matrix", "ageTMP_plot_segment_diagnostic")
+required_functions <- c(
+  "ageTMP_segment_diagnostic_matrix",
+  "ageTMP_plot_segment_diagnostic",
+  "ageTMP_plot_segment_depth"
+)
 missing_functions <- required_functions[
   !vapply(required_functions, exists, logical(1), where = asNamespace("temporalCPSA"), inherits = FALSE)
 ]
@@ -148,6 +152,8 @@ utils::write.table(
 
 png_file <- file.path(out_dir, "figure1f_source_age_segmentation_diagnostic.png")
 pdf_file <- file.path(out_dir, "figure1f_source_age_segmentation_diagnostic.pdf")
+depth_png_file <- file.path(out_dir, "figure1f_source_age_segmentation_depth.png")
+depth_pdf_file <- file.path(out_dir, "figure1f_source_age_segmentation_depth.pdf")
 
 plot_diagnostic <- function() {
   temporalCPSA::ageTMP_plot_segment_diagnostic(
@@ -165,7 +171,24 @@ grDevices::pdf(pdf_file, width = 10, height = 5.5)
 plot_diagnostic()
 grDevices::dev.off()
 
+plot_depth <- function() {
+  temporalCPSA::ageTMP_plot_segment_depth(
+    diagnostic,
+    main = "Data-Driven Age-Segmentation Depth from AD-TMP Structure"
+  )
+}
+
+grDevices::png(depth_png_file, width = 1600, height = 980, res = 170)
+plot_depth()
+grDevices::dev.off()
+
+grDevices::pdf(depth_pdf_file, width = 10.5, height = 6.3)
+plot_depth()
+grDevices::dev.off()
+
 cat("Figure 1F source-derived age-segmentation support written:\n")
 cat(png_file, "\n")
 cat(pdf_file, "\n")
+cat(depth_png_file, "\n")
+cat(depth_pdf_file, "\n")
 cat(file.path(out_dir, "figure1f_source_age_segmentation_summary.tsv"), "\n")
