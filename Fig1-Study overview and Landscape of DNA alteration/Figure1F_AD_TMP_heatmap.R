@@ -135,17 +135,31 @@ generate_ad_tmp_grid <- function(data_dir, out_dir) {
   ]
 
   matrix_cache <- new.env(parent = emptyenv())
+  metadata_cache <- new.env(parent = emptyenv())
   load_modality_matrix <- function(modality) {
     if (exists(modality, envir = matrix_cache, inherits = FALSE)) {
       return(get(modality, envir = matrix_cache, inherits = FALSE))
     }
     message("Loading ", modality, " feature matrix...")
-    mat <- temporalCPSA::ageTMP_load_feature_matrix(
-      data_dir = data_dir,
-      modality = modality,
-      collapse = TRUE,
-      row_id = "ApprovedGeneSymbol"
-    )
+    if (identical(modality, "phospho")) {
+      raw <- temporalCPSA::ageTMP_load_molecular(data_dir = data_dir, modality = modality)
+      split <- temporalCPSA::ageTMP_split_annotation_matrix(
+        raw,
+        annotation_cols = seq_len(min(9, ncol(raw))),
+        row_id = "Site"
+      )
+      mat <- split$matrix
+      phospho_gene <- split$annotation$ApprovedGeneSymbol
+      names(phospho_gene) <- split$annotation$Site
+      assign("phospho_gene", phospho_gene, envir = metadata_cache)
+    } else {
+      mat <- temporalCPSA::ageTMP_load_feature_matrix(
+        data_dir = data_dir,
+        modality = modality,
+        collapse = TRUE,
+        row_id = "ApprovedGeneSymbol"
+      )
+    }
     colnames(mat) <- temporalCPSA::ageTMP_normalize_sample_ids(colnames(mat))
     assign(modality, mat, envir = matrix_cache)
     mat
@@ -297,17 +311,31 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
   }
 
   matrix_cache <- new.env(parent = emptyenv())
+  metadata_cache <- new.env(parent = emptyenv())
   load_modality_matrix <- function(modality) {
     if (exists(modality, envir = matrix_cache, inherits = FALSE)) {
       return(get(modality, envir = matrix_cache, inherits = FALSE))
     }
     message("Loading ", modality, " feature matrix...")
-    mat <- temporalCPSA::ageTMP_load_feature_matrix(
-      data_dir = data_dir,
-      modality = modality,
-      collapse = TRUE,
-      row_id = "ApprovedGeneSymbol"
-    )
+    if (identical(modality, "phospho")) {
+      raw <- temporalCPSA::ageTMP_load_molecular(data_dir = data_dir, modality = modality)
+      split <- temporalCPSA::ageTMP_split_annotation_matrix(
+        raw,
+        annotation_cols = seq_len(min(9, ncol(raw))),
+        row_id = "Site"
+      )
+      mat <- split$matrix
+      phospho_gene <- split$annotation$ApprovedGeneSymbol
+      names(phospho_gene) <- split$annotation$Site
+      assign("phospho_gene", phospho_gene, envir = metadata_cache)
+    } else {
+      mat <- temporalCPSA::ageTMP_load_feature_matrix(
+        data_dir = data_dir,
+        modality = modality,
+        collapse = TRUE,
+        row_id = "ApprovedGeneSymbol"
+      )
+    }
     colnames(mat) <- temporalCPSA::ageTMP_normalize_sample_ids(colnames(mat))
     assign(modality, mat, envir = matrix_cache)
     mat
@@ -333,12 +361,56 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
       row.names = FALSE
     )
   }
+  collapse_phospho_tmp_by_gene <- function(mat) {
+    if (!exists("phospho_gene", envir = metadata_cache, inherits = FALSE)) {
+      stop("Phosphosite-to-gene map is missing.", call. = FALSE)
+    }
+    phospho_gene <- get("phospho_gene", envir = metadata_cache, inherits = FALSE)
+    row_parts <- strsplit(rownames(mat), "::", fixed = TRUE)
+    row_sex <- vapply(row_parts, function(x) {
+      hit <- x[x %in% c("Female", "Male")]
+      if (length(hit) > 0) hit[[1]] else NA_character_
+    }, character(1))
+    row_site <- vapply(row_parts, function(x) {
+      hit <- x[!x %in% c("Female", "Male")]
+      if (length(hit) > 0) hit[[1]] else x[[length(x)]]
+    }, character(1))
+    row_gene <- unname(phospho_gene[row_site])
+    row_gene[is.na(row_gene) | !nzchar(row_gene)] <- row_site[is.na(row_gene) | !nzchar(row_gene)]
+    row_group <- ifelse(
+      !is.na(row_sex),
+      paste(row_sex, row_gene, sep = "::"),
+      row_gene
+    )
+    collapsed <- lapply(split(seq_len(nrow(mat)), row_group), function(i) {
+      values <- colMeans(mat[i, , drop = FALSE], na.rm = TRUE)
+      values[is.nan(values)] <- NA_real_
+      values
+    })
+    out <- do.call(rbind, collapsed)
+    rownames(out) <- names(collapsed)
+    colnames(out) <- colnames(mat)
+    out
+  }
 
   fit_tmp_matrix <- function(modality, prediction_metadata) {
-    cache_path <- file.path(out_dir, paste0("figure1f_ad_tmp_", modality, "_full_tmp.tsv"))
+    cache_path <- file.path(
+      out_dir,
+      if (identical(modality, "phospho")) {
+        paste0("figure1f_ad_tmp_", modality, "_site_full_tmp.tsv")
+      } else {
+        paste0("figure1f_ad_tmp_", modality, "_full_tmp.tsv")
+      }
+    )
+    collapsed_cache_path <- file.path(out_dir, paste0("figure1f_ad_tmp_", modality, "_full_tmp.tsv"))
     if (file.exists(cache_path)) {
       message("Loading cached ", modality, " study-sample AD-TMP matrix...")
       out <- read_matrix_cache(cache_path)
+      if (identical(modality, "phospho")) {
+        load_modality_matrix("phospho")
+        out <- collapse_phospho_tmp_by_gene(out)
+        write_matrix_cache(out, collapsed_cache_path)
+      }
       message("Finished loading cached ", modality, " study-sample AD-TMP matrix.")
       return(out)
     }
@@ -388,7 +460,13 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
       return_trajectory = FALSE
     )
     out <- pred$matrix
-    write_matrix_cache(out, cache_path)
+    if (identical(modality, "phospho")) {
+      write_matrix_cache(out, cache_path)
+      out <- collapse_phospho_tmp_by_gene(out)
+      write_matrix_cache(out, collapsed_cache_path)
+    } else {
+      write_matrix_cache(out, cache_path)
+    }
     message("Finished estimating ", modality, " study-sample AD-TMP trajectories.")
     out
   }
@@ -584,6 +662,16 @@ tmp_matrix_candidates <- if (identical(figure1f_display_mode, "grid")) {
   }
 }
 tmp_matrix_path <- tmp_matrix_candidates[nzchar(tmp_matrix_candidates) & file.exists(tmp_matrix_candidates)][1]
+if (
+  identical(figure1f_mode, "source") &&
+    !identical(figure1f_display_mode, "grid") &&
+    !is.na(tmp_matrix_path) &&
+    identical(normalizePath(tmp_matrix_path, mustWork = FALSE), normalizePath(file.path(out_dir, "figure1f_ad_tmp_combined_tmp.tsv"), mustWork = FALSE)) &&
+    !file.exists(file.path(out_dir, "figure1f_ad_tmp_phospho_site_full_tmp.tsv"))
+) {
+  message("Existing source-derived Figure 1F matrix predates phosphosite-level phospho caching; regenerating.")
+  tmp_matrix_path <- NA_character_
+}
 if (is.na(tmp_matrix_path) || !nzchar(tmp_matrix_path)) {
   if (identical(figure1f_display_mode, "grid")) {
     generate_ad_tmp_grid(data_dir = data_dir, out_dir = out_dir)
