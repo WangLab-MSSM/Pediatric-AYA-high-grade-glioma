@@ -361,6 +361,38 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
       row.names = FALSE
     )
   }
+  read_fit_sample_reference <- function(modality) {
+    env_name <- paste0("AGETMP_", toupper(modality), "_FIT_SAMPLE_REFERENCE")
+    path <- Sys.getenv(env_name, "")
+    if (!nzchar(path) || !file.exists(path)) {
+      return(NULL)
+    }
+    ref <- utils::read.delim(path, check.names = FALSE, stringsAsFactors = FALSE)
+    if ("id" %in% names(ref)) {
+      ids <- ref$id
+    } else {
+      ids <- ref[[1]]
+    }
+    ids <- temporalCPSA::ageTMP_normalize_sample_ids(ids)
+    ids[nzchar(ids)]
+  }
+  write_fit_sample_cache <- function(ids, path) {
+    utils::write.table(
+      data.frame(id = ids),
+      file = path,
+      sep = "\t",
+      quote = FALSE,
+      row.names = FALSE
+    )
+  }
+  fit_sample_cache_matches <- function(ids, path) {
+    if (!file.exists(path)) {
+      return(FALSE)
+    }
+    cached <- utils::read.delim(path, check.names = FALSE, stringsAsFactors = FALSE)
+    cached_ids <- if ("id" %in% names(cached)) cached$id else cached[[1]]
+    identical(as.character(cached_ids), as.character(ids))
+  }
   collapse_phospho_tmp_by_gene <- function(mat) {
     if (!exists("phospho_gene", envir = metadata_cache, inherits = FALSE)) {
       stop("Phosphosite-to-gene map is missing.", call. = FALSE)
@@ -393,6 +425,23 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
     out
   }
 
+  fill_legacy_prediction_na <- function(mat, metadata) {
+    # Legacy phospho trajectories filled loess prediction gaps before
+    # phosphosite-to-gene collapse, keeping neighboring age columns comparable.
+    metadata <- metadata[match(colnames(mat), metadata$id), , drop = FALSE]
+    sample_order <- order(metadata$age, na.last = TRUE)
+    restore_order <- order(sample_order)
+    filled <- t(apply(mat[, sample_order, drop = FALSE], 1, function(x) {
+      if (!any(!is.na(x))) {
+        return(x)
+      }
+      x[is.na(x)] <- stats::na.omit(x)[[1]]
+      x
+    }))
+    colnames(filled) <- colnames(mat)[sample_order]
+    filled[, restore_order, drop = FALSE]
+  }
+
   fit_tmp_matrix <- function(modality, prediction_metadata) {
     cache_path <- file.path(
       out_dir,
@@ -403,19 +452,33 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
       }
     )
     collapsed_cache_path <- file.path(out_dir, paste0("figure1f_ad_tmp_", modality, "_full_tmp.tsv"))
-    if (file.exists(cache_path)) {
+    cache_fit_samples_path <- file.path(out_dir, paste0("figure1f_ad_tmp_", modality, "_fit_samples.tsv"))
+    mat <- load_modality_matrix(modality)
+    fit_ids <- intersect(colnames(mat), clinical_fit$id)
+    fit_reference_ids <- read_fit_sample_reference(modality)
+    if (!is.null(fit_reference_ids)) {
+      fit_ids <- fit_reference_ids[fit_reference_ids %in% fit_ids]
+      message("Restricting ", modality, " trajectory fit to ", length(fit_ids), " reference samples.")
+    } else {
+      message("Using ", length(fit_ids), " available ", modality, " samples for trajectory fit.")
+    }
+    if (file.exists(cache_path) && fit_sample_cache_matches(fit_ids, cache_fit_samples_path)) {
       message("Loading cached ", modality, " study-sample AD-TMP matrix...")
       out <- read_matrix_cache(cache_path)
       if (identical(modality, "phospho")) {
+        out <- fill_legacy_prediction_na(out, prediction_metadata)
+        write_matrix_cache(out, cache_path)
+        writeLines("phospho_legacy_prediction_na_fill_v1", file.path(out_dir, "figure1f_ad_tmp_phospho_legacy_na_fill.version"))
         load_modality_matrix("phospho")
         out <- collapse_phospho_tmp_by_gene(out)
         write_matrix_cache(out, collapsed_cache_path)
       }
       message("Finished loading cached ", modality, " study-sample AD-TMP matrix.")
       return(out)
+    } else if (file.exists(cache_path)) {
+      message("Cached ", modality, " AD-TMP matrix was fit on a different sample set; regenerating.")
     }
-    mat <- load_modality_matrix(modality)
-    mat <- mat[, intersect(colnames(mat), clinical_fit$id), drop = FALSE]
+    mat <- mat[, fit_ids, drop = FALSE]
     if (ncol(mat) < 5) {
       stop("Too few clinical samples match ", modality, " matrix.", call. = FALSE)
     }
@@ -461,12 +524,15 @@ generate_ad_tmp_sample_matrix <- function(data_dir, out_dir) {
     )
     out <- pred$matrix
     if (identical(modality, "phospho")) {
+      out <- fill_legacy_prediction_na(out, prediction_metadata)
       write_matrix_cache(out, cache_path)
+      writeLines("phospho_legacy_prediction_na_fill_v1", file.path(out_dir, "figure1f_ad_tmp_phospho_legacy_na_fill.version"))
       out <- collapse_phospho_tmp_by_gene(out)
       write_matrix_cache(out, collapsed_cache_path)
     } else {
       write_matrix_cache(out, cache_path)
     }
+    write_fit_sample_cache(fit_ids, cache_fit_samples_path)
     message("Finished estimating ", modality, " study-sample AD-TMP trajectories.")
     out
   }
@@ -662,14 +728,29 @@ tmp_matrix_candidates <- if (identical(figure1f_display_mode, "grid")) {
   }
 }
 tmp_matrix_path <- tmp_matrix_candidates[nzchar(tmp_matrix_candidates) & file.exists(tmp_matrix_candidates)][1]
+source_fit_reference_paths <- vapply(
+  c("protein", "rna", "phospho"),
+  function(modality) Sys.getenv(paste0("AGETMP_", toupper(modality), "_FIT_SAMPLE_REFERENCE"), ""),
+  character(1)
+)
+source_fit_cache_paths <- file.path(
+  out_dir,
+  paste0("figure1f_ad_tmp_", c("protein", "rna", "phospho"), "_fit_samples.tsv")
+)
+source_fit_references_active <- any(nzchar(source_fit_reference_paths) & file.exists(source_fit_reference_paths))
+source_fit_cache_complete <- all(file.exists(source_fit_cache_paths))
 if (
   identical(figure1f_mode, "source") &&
     !identical(figure1f_display_mode, "grid") &&
     !is.na(tmp_matrix_path) &&
     identical(normalizePath(tmp_matrix_path, mustWork = FALSE), normalizePath(file.path(out_dir, "figure1f_ad_tmp_combined_tmp.tsv"), mustWork = FALSE)) &&
-    !file.exists(file.path(out_dir, "figure1f_ad_tmp_phospho_site_full_tmp.tsv"))
+    (
+      !file.exists(file.path(out_dir, "figure1f_ad_tmp_phospho_site_full_tmp.tsv")) ||
+        !file.exists(file.path(out_dir, "figure1f_ad_tmp_phospho_legacy_na_fill.version")) ||
+        (source_fit_references_active && !source_fit_cache_complete)
+    )
 ) {
-  message("Existing source-derived Figure 1F matrix predates phosphosite-level phospho caching; regenerating.")
+  message("Existing source-derived Figure 1F matrix predates current phospho trajectory handling; regenerating.")
   tmp_matrix_path <- NA_character_
 }
 if (is.na(tmp_matrix_path) || !nzchar(tmp_matrix_path)) {
