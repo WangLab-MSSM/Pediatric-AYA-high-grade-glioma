@@ -21,9 +21,15 @@
 # visualization.
 
 script_arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
-script_path <- if (length(script_arg) > 0) sub("^--file=", "", script_arg[[1]]) else getwd()
+script_path <- if (length(script_arg) > 0) sub("^--file=", "", script_arg[[1]]) else ""
 script_path <- gsub("~\\+~", " ", script_path)
-script_dir <- normalizePath(dirname(script_path), mustWork = TRUE)
+script_dir <- if (nzchar(script_path)) {
+  normalizePath(dirname(script_path), mustWork = TRUE)
+} else if (file.exists(file.path(getwd(), "Figure1F_AD_TMP_heatmap_source_derived.R"))) {
+  normalizePath(getwd(), mustWork = TRUE)
+} else {
+  normalizePath(dirname(getwd()), mustWork = TRUE)
+}
 
 if (!nzchar(Sys.getenv("AGETMP_FIGURE1F_MODE"))) {
   Sys.setenv(AGETMP_FIGURE1F_MODE = "source")
